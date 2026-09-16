@@ -41,10 +41,10 @@ MU_SUN = 1.32712440018e11  # km^3/s^2
 # Mission date ranges
 # =========================================================
 
-start_date_leaving = datetime(2025, 7, 1)
+start_date_leaving = datetime(2025, 1, 1)
 end_date_leaving = datetime(2026, 6, 30)
 
-start_date_arriving = datetime(2026, 7, 1)
+start_date_arriving = datetime(2025, 3, 1)
 end_date_arriving = datetime(2028, 12, 31)
 
 
@@ -65,9 +65,11 @@ arriving_date_list = [(start_date_arriving + timedelta(days=i)).strftime("%Y-%m-
 # datetime objects inside the Lambert loop.
 # =========================================================
 
-leaving_times = np.array([i * 86400 for i in range(len(leaving_date_list))], dtype=np.int64)
+reference_date = start_date_leaving
 
-arriving_times = np.array([i * 86400 for i in range(len(arriving_date_list))],dtype=np.int64)
+leaving_times = np.array([(start_date_leaving + timedelta(days=i) - reference_date).total_seconds() for i in range(len(leaving_date_list))],dtype=np.float64)
+
+arriving_times = np.array([(start_date_arriving + timedelta(days=i) - reference_date).total_seconds() for i in range(len(arriving_date_list))],dtype=np.float64)
 
 # =========================================================
 # Worker globals
@@ -185,7 +187,7 @@ def solve_chunk(jobs):
                 r_earth,
                 r_comet,
                 float(dt),
-                MU_SUN
+                MU_SUN, 
             )
 
         except (ValueError, RuntimeError, FloatingPointError):
@@ -294,10 +296,10 @@ def main():
     orbits = Ephemeris()
 
     print("Downloading Earth ephemeris...")
-    earth_data = orbits.get_state("'399'", "'2025-07-01'","'2026-06-30'")
+    earth_data = orbits.get_state("'399'", "'2025-01-01'","'2026-06-30'")
 
     print("Downloading 3I/ATLAS ephemeris...")
-    comet_data = orbits.get_state("'DES=1004083'", "'2026-07-01'", "'2028-12-31'")
+    comet_data = orbits.get_state("'DES=1004083'", "'2025-03-01'", "'2028-12-31'")
 
     print("Ephemeris downloaded.\n")
 
@@ -447,6 +449,8 @@ def main():
 
                             # Skip already-completed cases
                             if (departure_date, arrival_date) in completed_cases:
+                                continue
+                            elif (datetime.strptime(departure_date, "%Y-%m-%d") + timedelta(days=30)) >= datetime.strptime(arrival_date, "%Y-%m-%d"):
                                 continue
 
                             current_chunk.append((i, j))
@@ -610,7 +614,7 @@ def main():
 
                         print(f"Completed: {cases_completed:,}/{total_cases:,} ({percentage:.2f}%)")
 
-        print("\n=" * 60)
+        print("=" * 60)
         print("Calculation complete.")
         print(f"Results saved to: {CSV_FILE}")
         print("=" * 60)

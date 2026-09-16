@@ -67,7 +67,6 @@ def lambert(r1_vec, r2_vec, dt, mu=MU_SUN):
     cos_theta = np.clip(cos_theta, -1.0, 1.0)
 
     theta = np.arccos(cos_theta)
-
     sin_theta = np.sin(theta)
 
     A = sin_theta * np.sqrt((r1 * r2) / (1.0 - cos_theta))
