@@ -13,8 +13,8 @@ import os
 
 import numpy as np
 
-from ephemeris import Ephemeris
-from lambert import lambert
+from ProbeOrbit.Orbital_Mission_Planning.ephemeris import Ephemeris
+from ProbeOrbit.Orbital_Mission_Planning.lambert import lambert
 
 
 # =========================================================
