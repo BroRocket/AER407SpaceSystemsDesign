@@ -16,9 +16,14 @@ class CelestialBody:
 
         self.start_date = start_date
         self.end_date = end_date
-        self.times_in_seconds = [((start_date + timedelta(days=i)) - start_date).total_seconds() for i in range((end_date - start_date).days + 1)]
+        # this line is fucked to change lol, but just be carfeul you map the roight amoutn of time in each second or orbits of bodies and probe wont't match
+        #lower line gives days for less compute time
+        self.times_in_seconds = [((start_date + timedelta(minutes=i*30)) - start_date).total_seconds() for i in range(int((end_date - start_date).total_seconds()/(60*30)) + 1)]
+        #self.times_in_seconds = [((start_date + timedelta(days=i)) - start_date).total_seconds() for i in range((end_date - start_date).days + 1)]
 
-        states = self.orbit.get_state(self.id, start_date.strftime("'%Y-%m-%d'"), end_date.strftime("'%Y-%m-%d'"), kwargs={"STEP_SIZE": "'1d'"}, metric=True)
+
+        states = self.orbit.get_state(self.id, start_date.strftime("'%Y-%m-%d'"), end_date.strftime("'%Y-%m-%d'"), kwargs={"STEP_SIZE": "'30m'"}, metric=True)
+        #states = self.orbit.get_state(self.id, start_date.strftime("'%Y-%m-%d'"), end_date.strftime("'%Y-%m-%d'"), kwargs={"STEP_SIZE": "'1d'"}, metric=True)
 
         r_matrix = np.array([state["r"] for state in states])
         self.r = [r_matrix[:, 0], r_matrix[:, 1], r_matrix[:, 2]]
@@ -38,14 +43,17 @@ class CelestialBody:
         z = float(self.interpz(t))
         return [x, y, z]
 
+
+
 class Spacecraft:
-    def __init__(self, name, init_position, init_velocity):
+    def __init__(self, name, init_position, init_velocity, acceleration = None):
         self.name = name
 
         self.r0 = np.array(init_position, dtype=float)
         self.v0 = np.array(init_velocity, dtype=float)
         self.r = []
         self.v = []
+        self.accel = acceleration
 
     def propogate_orbit(self, t_start: float, t_final: float, mu_central: float, celestial_bodies : list[CelestialBody] = [], t_eval=None):
 
@@ -56,6 +64,9 @@ class Spacecraft:
             r_mag = np.linalg.norm(r)
 
             a = (-mu_central * (r / r_mag**3))
+
+            if self.accel is not None:
+                a += self.accel(t)
 
             for body in celestial_bodies:
                  r_body = body.get_state(t)

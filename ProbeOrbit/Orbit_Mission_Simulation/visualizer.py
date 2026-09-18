@@ -106,8 +106,8 @@ class Visualizer:
         def update(frame):
             for line, point, body in zip(lines, points, all_objects):
                 # Slice position data up to the current frame and scale to AU
-                dim1_data = body.r[d1_idx][:frame] / AU
-                dim2_data = body.r[d2_idx][:frame] / AU
+                dim1_data = body.r[d1_idx][:(frame*100)] / AU
+                dim2_data = body.r[d2_idx][:(frame*100)] / AU
 
                 line.set_data(dim1_data, dim2_data)
                 
@@ -118,11 +118,82 @@ class Visualizer:
             return lines + points
 
         # 6. Create Animation
-        num_frames = len(self.spacecraft.r[0])
+        num_frames = int(len(self.spacecraft.r[0])/100)  
         
         # Store animation reference in 'self' to prevent Python garbage collection
-        self.ani = FuncAnimation(fig, update, frames=num_frames, init_func=init, interval=20, blit=True)
+        self.ani = FuncAnimation(fig, update, frames=num_frames, init_func=init, interval=5, blit=True)
         plt.show()
 
     def animate_trajecctory_3D(self):
-        pass
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+
+        ax.set_xlabel("X [AU]")
+        ax.set_ylabel("Y [AU]")
+        ax.set_zlabel("Z [AU]")
+        
+        all_objects = self.bodies + [self.spacecraft]
+
+        # 2. Calculate Axis Limits in AU
+        x_min = min(min(body.r[0] / AU) for body in all_objects)
+        x_max = max(max(body.r[0] / AU) for body in all_objects)
+        y_min = min(min(body.r[1] / AU) for body in all_objects)
+        y_max = max(max(body.r[1] / AU) for body in all_objects)
+        z_min = min(min(body.r[2] / AU) for body in all_objects)
+        z_max = max(max(body.r[2] / AU) for body in all_objects)
+        lim = max(abs(x_min), abs(y_min), abs(z_min), x_max, y_max, z_max)
+
+        ax.set_xlim(-lim, lim)
+        ax.set_ylim(-lim, lim)
+        ax.set_zlim(-lim, lim)
+        ax.grid(True)
+
+        plt.scatter(0, 0, s=20, label="Sun", c="yellow") # plot sun
+
+        #Create line objects (trailing paths) and point markers (current positions)
+        lines = []
+        points = []
+        for body in all_objects:
+            # Trailing trajectory line
+            (line,) = ax.plot([], [], [], lw=1.5, label=body.name)
+            lines.append(line)
+            # Leading point marker showing current position
+            (point,) = ax.plot([], [], [], marker="o", markersize=5, color=line.get_color())
+            points.append(point)
+
+        ax.legend(loc="upper right")
+
+        #Initialization Function
+        def init():
+            for line, point in zip(lines, points):
+                line.set_data([], [])
+                line.set_3d_properties([])
+
+                point.set_data([], [])
+                point.set_3d_properties([])
+            return lines + points
+
+        # Frame Update Function
+        def update(frame):
+            for line, point, body in zip(lines, points, all_objects):
+                # Slice position data up to the current frame and scale to AU
+                x_data = body.r[0][:(frame*100)] / AU
+                y_data = body.r[1][:(frame*100)] / AU
+                z_data = body.r[2][:(frame*100)] / AU
+
+                line.set_data(x_data, y_data)
+                line.set_3d_properties(z_data)
+
+                # Update current position marker
+                if len(x_data) > 0:
+                    point.set_data([x_data[-1]], [y_data[-1]])
+                    point.set_3d_properties([z_data[-1]])
+                    
+            return lines + points
+
+        # 6. Create Animation
+        num_frames = len(self.spacecraft.r[0]/100)
+        
+        # Store animation reference in 'self' to prevent Python garbage collection
+        self.ani = FuncAnimation(fig, update, frames=num_frames, init_func=init, interval=5, blit=True)
+        plt.show()
