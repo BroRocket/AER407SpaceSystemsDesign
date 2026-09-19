@@ -92,7 +92,9 @@ print(min_rv)
 print(df.iloc[min_rv_ind])
 print(min_total)
 print(df.iloc[min_total_ind])
-exit()
+
+
+
 
 # =========================================================
 # Create 2D grids

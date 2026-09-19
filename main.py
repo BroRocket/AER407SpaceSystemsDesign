@@ -11,8 +11,8 @@ MU_SUN = 1.32712440041279419e20 #m/s
 
 orbits = Ephemeris()
 
-departurte_date = datetime(2025, 9, 17)
-arrival_date = datetime(2029, 8, 17) # 2028, 6, 17)
+departurte_date = datetime(2025, 9, 1)
+arrival_date = datetime(2026, 12, 31) # 2028, 6, 17)
 
 comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
 print("Loaded Comet")
@@ -35,8 +35,8 @@ print("Loaded Neptune")
 
 bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune] # [earth, mars, jupiter]
 
-lambert_v1 = [ 5783.5129679 , 70617.7458126 , -4371.48300469]
-
+#lambert_v1 = [ 5783.5129679 , 70617.7458126 , -4371.48300469]
+lambert_v1 = [-9025.33155895, 59006.35163239, -2759.07709438] # for peri earht
 #lambert_v0 = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]]
 
 def probe_trhust(t):
@@ -69,7 +69,6 @@ vis = Visualizer(probe, bodies + [comet])
 # vis.trajectory_2D('y', 'z')
 #vis.trajectory_3D()
 vis.animate_trajectory_2D('x', 'y')
-vis.animate_trajectory_2D('y', 'z')
 #vis.ani.save("orbit_animation.gif", writer="pillow", fps=30)
 vis.animate_trajecctory_3D()
 

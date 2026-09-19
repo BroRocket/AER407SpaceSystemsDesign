@@ -188,79 +188,81 @@ def run_batch():
     print(f"Output: {OUTPUT_CSV}")
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
 
-    departurte_date = datetime(2025, 1, 1)
-    arrival_date = datetime(2028, 12, 31)
+#     departurte_date = datetime(2025, 1, 1)
+#     arrival_date = datetime(2028, 12, 31)
 
-    orbits = Ephemeris()
-    comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
-    print("Loaded Comet")
-    mercury = CelestialBody("Venus", 2.2031870799e13, orbits, "'199'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Mercury")
-    venus = CelestialBody("Venus", 3.24858592e14, orbits, "'299'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Venus")
-    earth = CelestialBody("Earth", 3.986004418e14, orbits, "'399'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Earth")
-    mars = CelestialBody("Mars", 4.282837e13, orbits, "'499'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Mars")
-    jupiter = CelestialBody("Jupiter", 1.26686534e17, orbits, "'599'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Jupiter")
-    saturn = CelestialBody("Saturn", 3.7931187e16, orbits, "'699'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Saturn")
-    uranus = CelestialBody("Uranus", 5.793939e15, orbits, "'799'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Uranus")
-    neptune = CelestialBody("Neptune", 6.836529e15, orbits, "'899'", departurte_date, arrival_date, vec_type=2)
-    print("Loaded Neptune")
+#     orbits = Ephemeris()
+#     comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
+#     print("Loaded Comet")
+#     mercury = CelestialBody("Venus", 2.2031870799e13, orbits, "'199'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Mercury")
+#     venus = CelestialBody("Venus", 3.24858592e14, orbits, "'299'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Venus")
+#     earth = CelestialBody("Earth", 3.986004418e14, orbits, "'399'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Earth")
+#     mars = CelestialBody("Mars", 4.282837e13, orbits, "'499'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Mars")
+#     jupiter = CelestialBody("Jupiter", 1.26686534e17, orbits, "'599'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Jupiter")
+#     saturn = CelestialBody("Saturn", 3.7931187e16, orbits, "'699'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Saturn")
+#     uranus = CelestialBody("Uranus", 5.793939e15, orbits, "'799'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Uranus")
+#     neptune = CelestialBody("Neptune", 6.836529e15, orbits, "'899'", departurte_date, arrival_date, vec_type=2)
+#     print("Loaded Neptune")
 
     
-    bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
+#     bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 
-    run_batch()
+#     run_batch()
 
 
-#Lambert departure velocity is your initial guess
-# departurte_date = datetime(2025, 9, 17)
-# arrival_date = datetime(2028, 6, 17)
+#Lambert departure velocity is your initial guess 2025-09-01,2026-01-31
+departurte_date = datetime(2025, 9, 17)
+arrival_date = datetime(2028, 6, 19)
 
-# orbits = Ephemeris()
-# comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
-# print("Loaded Comet")
-# mercury = CelestialBody("Venus", 2.2031870799e13, orbits, "'199'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Mercury")
-# venus = CelestialBody("Venus", 3.24858592e14, orbits, "'299'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Venus")
-# earth = CelestialBody("Earth", 3.986004418e14, orbits, "'399'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Earth")
-# mars = CelestialBody("Mars", 4.282837e13, orbits, "'499'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Mars")
-# jupiter = CelestialBody("Jupiter", 1.26686534e17, orbits, "'599'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Jupiter")
-# saturn = CelestialBody("Saturn", 3.7931187e16, orbits, "'699'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Saturn")
-# uranus = CelestialBody("Uranus", 5.793939e15, orbits, "'799'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Uranus")
-# neptune = CelestialBody("Neptune", 6.836529e15, orbits, "'899'", departurte_date, arrival_date, vec_type=2)
-# print("Loaded Neptune")
+orbits = Ephemeris()
+comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
+print("Loaded Comet")
+mercury = CelestialBody("Venus", 2.2031870799e13, orbits, "'199'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Mercury")
+venus = CelestialBody("Venus", 3.24858592e14, orbits, "'299'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Venus")
+earth = CelestialBody("Earth", 3.986004418e14, orbits, "'399'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Earth")
+mars = CelestialBody("Mars", 4.282837e13, orbits, "'499'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Mars")
+jupiter = CelestialBody("Jupiter", 1.26686534e17, orbits, "'599'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Jupiter")
+saturn = CelestialBody("Saturn", 3.7931187e16, orbits, "'699'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Saturn")
+uranus = CelestialBody("Uranus", 5.793939e15, orbits, "'799'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Uranus")
+neptune = CelestialBody("Neptune", 6.836529e15, orbits, "'899'", departurte_date, arrival_date, vec_type=2)
+print("Loaded Neptune")
 
-# bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
+bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 
-# v0_guess = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]]
+v0_guess = [-20965.46953130548 + earth.v[0][0], 28445.408514346955 + earth.v[1][0], -2497.2717286976667 + earth.v[2][0]]
 
-# solution = least_squares(
-#     targeting_residual,
-#     x0=v0_guess,
-#     args=(
-#         [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]],
-#         0,
-#         (arrival_date-departurte_date).total_seconds(),
-#         np.array([comet.r[0][-1], comet.r[1][-1], comet.r[2][-1]]),
-#         bodies
-#     ),
-#     xtol=1e-10,
-#     ftol=1e-10,
-#     gtol=1e-10
-# )
+#v0_guess = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]]
 
-# print(solution.x)
+solution = least_squares(
+    targeting_residual,
+    x0=v0_guess,
+    args=(
+        [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]],
+        0,
+        (arrival_date-departurte_date).total_seconds(),
+        np.array([comet.r[0][-1], comet.r[1][-1], comet.r[2][-1]]),
+        bodies
+    ),
+    xtol=1e-10,
+    ftol=1e-10,
+    gtol=1e-10
+)
+
+print(solution.x)
