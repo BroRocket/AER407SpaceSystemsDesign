@@ -11,10 +11,13 @@ MU_SUN = 1.32712440041279419e20 #m/s
 
 orbits = Ephemeris()
 
-departurte_date = datetime(2025, 9, 1)
-arrival_date = datetime(2026, 12, 31) # 2028, 6, 17)
+# departurte_date = datetime(2025, 9, 17) #1
+# arrival_date = datetime(2028, 7, 17) # 2028, 6, 17) # peri_earth 2026, 12, 31
 
-comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
+departurte_date = datetime(2028, 6, 17) #1
+arrival_date = datetime(2028, 6, 30)
+
+comet = CelestialBody("3I/ATLAS", 2202.52, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
 print("Loaded Comet")
 mercury = CelestialBody("Mercury", 2.2031870799e13, orbits, "'199'", departurte_date, arrival_date, vec_type=2)
 print("Loaded Mercury")
@@ -33,11 +36,12 @@ print("Loaded Uranus")
 neptune = CelestialBody("Neptune", 6.836529e15, orbits, "'899'", departurte_date, arrival_date, vec_type=2)
 print("Loaded Neptune")
 
-bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune] # [earth, mars, jupiter]
+bodies = [comet, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune] # [earth, mars, jupiter]
 
 #lambert_v1 = [ 5783.5129679 , 70617.7458126 , -4371.48300469]
-lambert_v1 = [-9025.33155895, 59006.35163239, -2759.07709438] # for peri earht
+#lambert_v1 = [-9025.33155895, 59006.35163239, -2759.07709438] # for peri earht
 #lambert_v0 = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]]
+cometv = [-5012.90233568236, 58110.47246753923, -3614.515878011296]
 
 def probe_trhust(t):
     trhust_duration = 20000
@@ -52,7 +56,9 @@ def probe_trhust(t):
         return thrust/mass
 
 
-probe = Spacecraft("Hitchhiker 1", [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]], lambert_v1)
+#probe = Spacecraft("Hitchhiker 1", [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]], lambert_v1)
+
+probe = Spacecraft("Hitchhiker 1", [-658324968508.9681, 4877060969430.523, -291460841467.7062], cometv)
 
 probe.propogate_orbit(0, (arrival_date-departurte_date).total_seconds(), MU_SUN, celestial_bodies=bodies, t_eval=earth.times_in_seconds)
 print("Loaded probe")
@@ -64,13 +70,13 @@ print("Loaded probe")
 #exit()
 vis = Visualizer(probe, bodies + [comet])
 
-#vis.trajectory_2D('x', 'y')
-# vis.trajectory_2D('x', 'z')
-# vis.trajectory_2D('y', 'z')
+vis.trajectory_2D('x', 'y')
+vis.trajectory_2D('x', 'z')
+vis.trajectory_2D('y', 'z')
 #vis.trajectory_3D()
-vis.animate_trajectory_2D('x', 'y')
+#vis.animate_trajectory_2D('x', 'y')
 #vis.ani.save("orbit_animation.gif", writer="pillow", fps=30)
-vis.animate_trajecctory_3D()
+#vis.animate_trajecctory_3D()
 
 min_d = 100000000000
 ind = 0
@@ -88,3 +94,4 @@ print(f"Relative speed to comet at closet appraoch: {relative_v} m/s")
 print(f"Comet: {[comet.r[0][ind], comet.r[1][ind], comet.r[2][ind]]}m, {[comet.v[0][ind], comet.v[1][ind], comet.v[2][ind]]}m/s\nProbe: {[probe.r[0][ind], probe.r[1][ind], probe.r[2][ind]]}m, {[probe.v[0][ind], probe.v[1][ind], probe.v[2][ind]]}m/s")
 print(f"Time at closest appraoch (After Departure Date): {probe.t[ind]} s")
 print(f"Relative velocity unit Vector: {(np.array([comet.v[0][ind], comet.v[1][ind], comet.v[2][ind]]) - np.array([probe.v[0][ind], probe.v[1][ind], probe.v[2][ind]]))/relative_v}")
+print(f"Spacecraft velocity: {[probe.v[0][i], probe.v[1][i], probe.v[2][i]]}")

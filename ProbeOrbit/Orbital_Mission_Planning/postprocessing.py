@@ -55,10 +55,10 @@ min_relative_V_ind = np.argmin(relative_v)
 min_dv_row = df.iloc[min_delta_V_ind]
 min_rv_row = df.iloc[min_relative_V_ind]
 
-# print("Minimum departure delta-V:")
-# print(min_dv_row)
-# print("\nMinimum arrival relative velocity:")
-# print(min_rv_row)
+print("Minimum departure delta-V:")
+print(min_dv_row)
+print("\nMinimum arrival relative velocity:")
+print(min_rv_row)
 
 
 DELTA_V_THRESHOLD = 40
@@ -92,6 +92,20 @@ print(min_rv)
 print(df.iloc[min_rv_ind])
 print(min_total)
 print(df.iloc[min_total_ind])
+
+DELTA_V_THRESHOLD = 40
+RELATIVE_E_THRESHOLD = 7
+
+# Find rows meeting both criteria
+mask = (
+    (df["delta_v"] <= DELTA_V_THRESHOLD) &
+    (df["v_relative_comet"] <= RELATIVE_E_THRESHOLD)
+)
+
+# Extract matching rows into a smaller DataFrame
+df_candidates = df.loc[mask].copy()
+df_candidates.to_csv("candidates.csv", mode="w", index=False)
+
 
 
 
@@ -149,7 +163,7 @@ vmin = np.nanmin(Z)
 vmax = 40  # km/s
 
 # Number of colour levels
-levels = np.linspace(vmin, vmax, 100)
+levels = np.linspace(vmin, vmax, 150)
 
 
 # ---------------------------------------------------------
@@ -174,31 +188,6 @@ cbar = fig.colorbar(contour, ax=ax)
 cbar.set_label(
     r"Departure $v_\infty$ (km/s)"
 )
-
-
-# ---------------------------------------------------------
-# Contour lines
-# ---------------------------------------------------------
-
-# contour_lines = ax.contour(
-#     departure_mesh,
-#     arrival_mesh,
-#     Z,
-#     levels=np.arange(
-#         np.ceil(vmin),
-#         vmax + 1,
-#         1.0
-#     ),
-#     linewidths=0.8
-# )
-
-# ax.clabel(
-#     contour_lines,
-#     inline=True,
-#     fontsize=8,
-#     fmt="%.0f"
-# )
-
 
 # ---------------------------------------------------------
 # Minimum delta-V point and minimum relative
@@ -228,6 +217,25 @@ ax.scatter(
         f"Minimum Relative Volcity = "
         f"{min_rv_row['v_relative_comet']:.2f} km/s"
     )
+)
+
+launch_start = pd.Timestamp("2025-06-01")
+launch_end = pd.Timestamp("2026-06-01")
+
+# Add vertical lines
+ax.axvline(
+    launch_start,
+    color="red",
+    linestyle="--",
+    linewidth=2,
+    label="Launch Window"
+)
+
+ax.axvline(
+    launch_end,
+    color="red",
+    linestyle="--",
+    linewidth=2
 )
 
 # ---------------------------------------------------------
@@ -270,7 +278,7 @@ ax.grid(
     alpha=0.3
 )
 
-ax.legend()
+ax.legend(loc='lower right')
 
 plt.tight_layout()
 plt.show()
@@ -316,10 +324,10 @@ vmin = np.nanmin(Z)
 
 # Set the upper colour limit.
 # Change this number depending on your data.
-vmax = 12  # km/s
+vmax = 8  # km/s
 
 # Number of colour levels
-levels = np.linspace(vmin, vmax, 100)
+levels = np.linspace(vmin, vmax, 150)
 
 
 # ---------------------------------------------------------
@@ -341,7 +349,7 @@ contour = ax.contourf(
 cbar = fig.colorbar(contour, ax=ax)
 
 cbar.set_label(
-    r"Relative Velocity Comet $v_R$ (km/s)"
+    r"Relative Velocity to Comet $v_R$ (km/s)"
 )
 
 # ---------------------------------------------------------
@@ -374,6 +382,22 @@ ax.scatter(
     )
 )
 
+# Add vertical lines
+ax.axvline(
+    launch_start,
+    color="red",
+    linestyle="--",
+    linewidth=2,
+    label="Launch Window"
+)
+
+ax.axvline(
+    launch_end,
+    color="red",
+    linestyle="--",
+    linewidth=2
+)
+
 # ---------------------------------------------------------
 # Labels
 # ---------------------------------------------------------
@@ -382,7 +406,7 @@ ax.set_xlabel("Departure Date")
 ax.set_ylabel("Arrival Date")
 
 ax.set_title(
-    "Earth → 3I/ATLAS Departure Relative Comet Velocity Plot"
+    "Earth → 3I/ATLAS Relative Velocity to Comet on Arrival"
 )
 
 # ---------------------------------------------------------
@@ -413,7 +437,7 @@ ax.grid(
     alpha=0.3
 )
 
-ax.legend()
+ax.legend(loc='lower right')
 
 plt.tight_layout()
 plt.show()
@@ -520,6 +544,22 @@ ax.scatter(
     )
 )
 
+# Add vertical lines
+ax.axvline(
+    launch_start,
+    color="red",
+    linestyle="--",
+    linewidth=2,
+    label="Launch Window"
+)
+
+ax.axvline(
+    launch_end,
+    color="red",
+    linestyle="--",
+    linewidth=2
+)
+
 # ---------------------------------------------------------
 # Labels
 # ---------------------------------------------------------
@@ -528,7 +568,7 @@ ax.set_xlabel("Departure Date")
 ax.set_ylabel("Arrival Date")
 
 ax.set_title(
-    "Earth → 3I/ATLAS Departure Relative Comet Velocity Plot"
+    "Earth → 3I/ATLAS Departure Velocity + Relative Velocity to Comet"
 )
 
 # ---------------------------------------------------------
@@ -559,7 +599,7 @@ ax.grid(
     alpha=0.3
 )
 
-ax.legend()
+ax.legend(loc='lower right')
 
 plt.tight_layout()
 plt.show()

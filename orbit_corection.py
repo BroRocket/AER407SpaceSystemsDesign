@@ -13,7 +13,7 @@ from ProbeOrbit.Orbital_Mission_Planning.ephemeris import Ephemeris
 # CONFIGURATION
 # ============================================================
 
-INPUT_CSV = "lambert_results_detailed.csv"
+INPUT_CSV = "test.csv"
 OUTPUT_CSV = "lambert_results_corrected.csv"
 
 MU_SUN = 1.32712440041279419e20 # km^3/s^2
@@ -187,6 +187,7 @@ def run_batch():
     print(f"Failed: {failed:,}")
     print(f"Output: {OUTPUT_CSV}")
 
+    return result_df
 
 # if __name__ == "__main__":
 
@@ -217,7 +218,7 @@ def run_batch():
     
 #     bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 
-#     run_batch()
+run_batch()
 
 
 #Lambert departure velocity is your initial guess 2025-09-01,2026-01-31

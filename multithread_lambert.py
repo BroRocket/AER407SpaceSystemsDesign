@@ -45,7 +45,7 @@ start_date_leaving = datetime(2025, 1, 1)
 end_date_leaving = datetime(2026, 6, 30)
 
 start_date_arriving = datetime(2025, 3, 1)
-end_date_arriving = datetime(2028, 12, 31)
+end_date_arriving = datetime(2030, 12, 31)
 
 
 # =========================================================
@@ -299,7 +299,7 @@ def main():
     earth_data = orbits.get_state("'399'", "'2025-01-01'","'2026-06-30'")
 
     print("Downloading 3I/ATLAS ephemeris...")
-    comet_data = orbits.get_state("'DES=1004083'", "'2025-03-01'", "'2028-12-31'")
+    comet_data = orbits.get_state("'DES=1004083'", "'2025-03-01'", "'2030-12-31'")
 
     print("Ephemeris downloaded.\n")
 

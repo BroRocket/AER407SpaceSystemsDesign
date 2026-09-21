@@ -39,9 +39,9 @@ def parse_horizons_result(result, vec_type: int, metric : bool = False):
 
                 if metric is False:
                     v = [
-                        1000*float(velocity.split("VX=")[1].split()[0]),
-                        1000*float(velocity.split("VY=")[1].split()[0]),
-                        1000*float(velocity.split("VZ=")[1].split()[0])
+                        float(velocity.split("VX=")[1].split()[0]),
+                        float(velocity.split("VY=")[1].split()[0]),
+                        float(velocity.split("VZ=")[1].split()[0])
                         ]
                 else:
                     v = [
