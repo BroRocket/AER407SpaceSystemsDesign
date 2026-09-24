@@ -218,12 +218,12 @@ def run_batch():
     
 #     bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 
-run_batch()
+#run_batch()
 
 
 #Lambert departure velocity is your initial guess 2025-09-01,2026-01-31
-departurte_date = datetime(2025, 9, 17)
-arrival_date = datetime(2028, 6, 19)
+departurte_date = datetime(2025, 12, 27)
+arrival_date = datetime(2035, 12, 31)
 
 orbits = Ephemeris()
 comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
@@ -247,7 +247,9 @@ print("Loaded Neptune")
 
 bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 
-v0_guess = [-20965.46953130548 + earth.v[0][0], 28445.408514346955 + earth.v[1][0], -2497.2717286976667 + earth.v[2][0]]
+v0_guess = [23121.151 + earth.v[0][0], 74536.702 + earth.v[1][0], -4028.601 + earth.v[2][0]]                           
+                             
+#v0_guess = [-20965.46953130548 + earth.v[0][0], 28445.408514346955 + earth.v[1][0], -2497.2717286976667 + earth.v[2][0]]
 
 #v0_guess = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]]
 
@@ -261,9 +263,9 @@ solution = least_squares(
         np.array([comet.r[0][-1], comet.r[1][-1], comet.r[2][-1]]),
         bodies
     ),
-    xtol=1e-10,
-    ftol=1e-10,
-    gtol=1e-10
+    xtol=1e-6,
+    ftol=1e-6,
+    gtol=1e-6
 )
 
 print(solution.x)

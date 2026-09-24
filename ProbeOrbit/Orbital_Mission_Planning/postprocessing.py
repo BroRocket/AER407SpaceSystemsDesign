@@ -42,6 +42,45 @@ df = pd.read_csv(CSV_FILE, dtype={"departure_date": str,
                                   "vrel_z": np.float64})
 
 
+df['arrival_date_dt'] = pd.to_datetime(df['arrival_date'])
+
+filtered_df = df[df['arrival_date_dt'] < '2026-05-01'].copy() # may 2026
+
+# 3. Find the trajectory row with the minimum relative velocity
+if not filtered_df.empty:
+    # Option A: Get the single trajectory with the minimum velocity as a Series
+    min_vrel_trajectory = filtered_df.loc[filtered_df['v_relative_comet'].idxmin()]
+
+    print("Minimum Relative Velocity Trajectory:")
+    print(min_vrel_trajectory)
+else:
+    print("No trajectories found meeting the date criteria.")
+
+# 2. Filter for arrival dates before May 1, 2027
+filtered_df = df[df['arrival_date_dt'] < '2027-05-01'].copy() #Uranus
+
+# 3. Find the trajectory row with the minimum relative velocity
+if not filtered_df.empty:
+    # Option A: Get the single trajectory with the minimum velocity as a Series
+    min_vrel_trajectory = filtered_df.loc[filtered_df['v_relative_comet'].idxmin()]
+
+    print("Minimum Relative Velocity Trajectory:")
+    print(min_vrel_trajectory)
+else:
+    print("No trajectories found meeting the date criteria.")
+
+filtered_df = df[df['arrival_date_dt'] < '2028-03-31'].copy() #Neptune
+
+# 3. Find the trajectory row with the minimum relative velocity
+if not filtered_df.empty:
+    # Option A: Get the single trajectory with the minimum velocity as a Series
+    min_vrel_trajectory = filtered_df.loc[filtered_df['v_relative_comet'].idxmin()]
+
+    print("Minimum Relative Velocity Trajectory:")
+    print(min_vrel_trajectory)
+else:
+    print("No trajectories found meeting the date criteria.")
+
 df["departure_date"] = pd.to_datetime(df["departure_date"])
 df["arrival_date"] = pd.to_datetime(df["arrival_date"])
 
@@ -107,8 +146,15 @@ df_candidates = df.loc[mask].copy()
 df_candidates.to_csv("candidates.csv", mode="w", index=False)
 
 
+mask = (
+    (df["v_relative_comet"] <= 1.188)
+)
 
-
+# Extract matching rows into a smaller DataFrame
+df_candidates = df.loc[mask].copy()
+min_date_trajectory = df_candidates.loc[df_candidates['arrival_date_dt'].idxmin()]
+print(f"Min Date Trajecrtory:\n{min_date_trajectory}")
+exit()
 
 # =========================================================
 # Create 2D grids
@@ -160,10 +206,10 @@ vmin = np.nanmin(Z)
 
 # Set the upper colour limit.
 # Change this number depending on your data.
-vmax = 40  # km/s
+vmax = 200  # km/s
 
 # Number of colour levels
-levels = np.linspace(vmin, vmax, 150)
+levels = np.linspace(vmin, vmax, 400)
 
 
 # ---------------------------------------------------------
@@ -324,10 +370,10 @@ vmin = np.nanmin(Z)
 
 # Set the upper colour limit.
 # Change this number depending on your data.
-vmax = 8  # km/s
+vmax = 100  # km/s
 
 # Number of colour levels
-levels = np.linspace(vmin, vmax, 150)
+levels = np.linspace(vmin, vmax, 300)
 
 
 # ---------------------------------------------------------
@@ -445,6 +491,12 @@ plt.show()
 
 ### Joint velocity
 df["total_dv"] = df["delta_v"] + df["v_relative_comet"]
+
+min_row = df.loc[df["total_dv"].idxmin()]
+
+print(min_row)
+
+
 
 ### PLot of joint velocity
 

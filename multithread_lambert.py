@@ -24,7 +24,7 @@ from ProbeOrbit.Orbital_Mission_Planning.lambert import lambert
 CSV_FILE = "lambert_results_detailed.csv"
 
 # Number of CPU processes to use.
-# Leaving 2 cores free keeps Windows responsive.
+# Leaving 1 cores free keeps Windows responsive.
 NUM_PROCESSES = cpu_count() - 2
 
 # Number of Lambert cases given to each worker at once.
@@ -32,7 +32,7 @@ CHUNK_SIZE = 2000
 
 # Number of chunks allowed to be running simultaneously.
 # Keeping this relatively small avoids excessive memory usage.
-MAX_PENDING_CHUNKS = NUM_PROCESSES * 2
+MAX_PENDING_CHUNKS = NUM_PROCESSES * 3
 
 # Sun gravitational parameter
 MU_SUN = 1.32712440018e11  # km^3/s^2
@@ -42,10 +42,10 @@ MU_SUN = 1.32712440018e11  # km^3/s^2
 # =========================================================
 
 start_date_leaving = datetime(2025, 1, 1)
-end_date_leaving = datetime(2026, 6, 30)
+end_date_leaving = datetime(2026, 7, 1)
 
 start_date_arriving = datetime(2025, 3, 1)
-end_date_arriving = datetime(2030, 12, 31)
+end_date_arriving = datetime(2038, 12, 31)
 
 
 # =========================================================
@@ -296,10 +296,10 @@ def main():
     orbits = Ephemeris()
 
     print("Downloading Earth ephemeris...")
-    earth_data = orbits.get_state("'399'", "'2025-01-01'","'2026-06-30'")
+    earth_data = orbits.get_state("'399'", "'2025-01-01'","'2026-07-1'")
 
     print("Downloading 3I/ATLAS ephemeris...")
-    comet_data = orbits.get_state("'DES=1004083'", "'2025-03-01'", "'2030-12-31'")
+    comet_data = orbits.get_state("'DES=1004083'", "'2025-03-01'", "'2038-12-31'")
 
     print("Ephemeris downloaded.\n")
 

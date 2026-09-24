@@ -11,11 +11,11 @@ MU_SUN = 1.32712440041279419e20 #m/s
 
 orbits = Ephemeris()
 
-# departurte_date = datetime(2025, 9, 17) #1
-# arrival_date = datetime(2028, 7, 17) # 2028, 6, 17) # peri_earth 2026, 12, 31
+departurte_date = datetime(2025, 9, 17) #1
+arrival_date = datetime(2030, 6, 10) # 2028, 6, 17) # peri_earth 2026, 12, 31
 
-departurte_date = datetime(2028, 6, 17) #1
-arrival_date = datetime(2028, 6, 30)
+# departurte_date = datetime(2028, 6, 17) #1
+# arrival_date = datetime(2028, 6, 30)
 
 comet = CelestialBody("3I/ATLAS", 2202.52, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
 print("Loaded Comet")
@@ -38,27 +38,30 @@ print("Loaded Neptune")
 
 bodies = [comet, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune] # [earth, mars, jupiter]
 
-#lambert_v1 = [ 5783.5129679 , 70617.7458126 , -4371.48300469]
+#lambert_v1 = [-6286.15896251, 72308.60450236, -4060.71989129]
+lambert_v1 = [ 5783.5129679 , 70617.7458126 , -4371.48300469] # old fixed good trajectory
+# #v_inf = [ 5783.5129679 - earth.v[0][0], 70617.7458126 - earth.v[1][0], -4371.48300469 - earth.v[2][0]]
+# print(v_inf)
+# print(np.linalg.norm(v_inf))
+
 #lambert_v1 = [-9025.33155895, 59006.35163239, -2759.07709438] # for peri earht
-#lambert_v0 = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]]
-cometv = [-5012.90233568236, 58110.47246753923, -3614.515878011296]
+#lambert_v0 = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]] # old
+#cometv = [-5012.90233568236, 58110.47246753923, -3614.515878011296]
 
 def probe_trhust(t):
-    trhust_duration = 20000
-    if t < 86745600 - trhust_duration/2:
-        return np.array([0, 0, 0])
-    elif t > 86745600 + trhust_duration/2:
-        return np.array([0, 0, 0])
-    else: 
-        thrust = 100000000 * np.array([ -0.81916498 , -0.57018647 , 0.06209773])
-        burn_duration = t - (86745600 - trhust_duration/2)
-        mass = 750 - burn_duration * 0.01
-        return thrust/mass
+    m_dot = 33.97893306
+    if t >= 86745600.0 - 9.35 and t <= 86745600.0 + 9.35:
+        thrust = 100000 #420*2 # 50 uN
+        burn_duration = t - (86745600.0 - 60)
+        mass = 750 - m_dot*burn_duration
+        return thrust/mass #* np.array([ 0.91388206, -0.40555289,  0.01861307])
+    else:
+        return 0
 
 
-#probe = Spacecraft("Hitchhiker 1", [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]], lambert_v1)
+probe = Spacecraft("Hitchhiker 1", [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]], lambert_v1) #, probe_trhust)
 
-probe = Spacecraft("Hitchhiker 1", [-658324968508.9681, 4877060969430.523, -291460841467.7062], cometv)
+#probe = Spacecraft("Hitchhiker 1", [-658324968508.9681, 4877060969430.523, -291460841467.7062], cometv)
 
 probe.propogate_orbit(0, (arrival_date-departurte_date).total_seconds(), MU_SUN, celestial_bodies=bodies, t_eval=earth.times_in_seconds)
 print("Loaded probe")
@@ -68,17 +71,17 @@ print("Loaded probe")
 # print(len(probe.r[0]))
 # print(len(earth.r[0]))
 #exit()
-vis = Visualizer(probe, bodies + [comet])
+vis = Visualizer(probe, bodies)
 
 vis.trajectory_2D('x', 'y')
-vis.trajectory_2D('x', 'z')
-vis.trajectory_2D('y', 'z')
+# vis.trajectory_2D('x', 'z')
+# vis.trajectory_2D('y', 'z')
 #vis.trajectory_3D()
-#vis.animate_trajectory_2D('x', 'y')
+vis.animate_trajectory_2D('x', 'y')
 #vis.ani.save("orbit_animation.gif", writer="pillow", fps=30)
 #vis.animate_trajecctory_3D()
 
-min_d = 100000000000
+min_d = 100000000000000000
 ind = 0
 for i in range(0, len(probe.r[0])):
     d = np.linalg.norm(np.array([comet.r[0][i], comet.r[1][i], comet.r[2][i]]) - np.array([probe.r[0][i], probe.r[1][i], probe.r[2][i]]))
