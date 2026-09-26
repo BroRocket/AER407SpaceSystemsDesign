@@ -333,6 +333,7 @@ if __name__ == "__main__":
         arrival_date,
         vec_type=2
     )
+    print("Loaded comet")
 
     epoch = departurte_date
 
@@ -345,8 +346,7 @@ if __name__ == "__main__":
         100,
         1000,
         10000,
-        100000,
-        500000,
+        100000
     ])
 
     # --------------------------------------------------------
@@ -364,7 +364,9 @@ if __name__ == "__main__":
         0.5,
         1.0,
         2.0,
-        5.0
+        5.0,
+        10.0,
+        25.0
     ]
 
     # Dictionary to store results

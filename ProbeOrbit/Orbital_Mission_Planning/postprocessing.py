@@ -145,14 +145,16 @@ mask = (
 df_candidates = df.loc[mask].copy()
 df_candidates.to_csv("candidates.csv", mode="w", index=False)
 
+df["total_dv"] = df["delta_v"] + df["v_relative_comet"]
 
 mask = (
-    (df["v_relative_comet"] <= 1.188)
+    (df["v_relative_comet"] <= 6) & (df["delta_v"] <= 50)
 )
 
 # Extract matching rows into a smaller DataFrame
 df_candidates = df.loc[mask].copy()
-min_date_trajectory = df_candidates.loc[df_candidates['arrival_date_dt'].idxmin()]
+filtered_df = df_candidates[df_candidates['arrival_date_dt'] < '2028-01-01'].copy()
+min_date_trajectory = filtered_df.loc[filtered_df['total_dv'].idxmin()]
 print(f"Min Date Trajecrtory:\n{min_date_trajectory}")
 exit()
 
