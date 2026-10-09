@@ -1,6 +1,7 @@
 
 from datetime import datetime
 import numpy as np
+import pandas as pd
 
 from ProbeOrbit.Orbit_Mission_Simulation.orbiting_bodies import CelestialBody, Spacecraft
 from ProbeOrbit.Orbital_Mission_Planning.ephemeris import Ephemeris
@@ -11,8 +12,8 @@ MU_SUN = 1.32712440041279419e20 #m/s
 
 orbits = Ephemeris()
 
-departurte_date = datetime(2025, 9, 17) #1
-arrival_date = datetime(2030, 6, 10) # 2028, 6, 17) # peri_earth 2026, 12, 31
+departurte_date = datetime(2025, 12, 25) #1
+arrival_date = datetime(2030, 9, 12) # 2028, 6, 17) # peri_earth 2026, 12, 31
 
 # departurte_date = datetime(2028, 6, 17) #1
 # arrival_date = datetime(2028, 6, 30)
@@ -38,8 +39,8 @@ print("Loaded Neptune")
 
 bodies = [comet, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune] # [earth, mars, jupiter]
 
-#lambert_v1 = [-6286.15896251, 72308.60450236, -4060.71989129]
-lambert_v1 = [ 5783.5129679 , 70617.7458126 , -4371.48300469] # old fixed good trajectory
+lambert_v1 = [-7511.64266923, 72730.28092553, -4079.3701725]  # worst case trajectory
+#lambert_v1 = [-7913.41945658, 72851.45779273, -4085.08589239] # best case only couple AU difference
 # #v_inf = [ 5783.5129679 - earth.v[0][0], 70617.7458126 - earth.v[1][0], -4371.48300469 - earth.v[2][0]]
 # print(v_inf)
 # print(np.linalg.norm(v_inf))
@@ -63,8 +64,16 @@ probe = Spacecraft("Hitchhiker 1", [earth.r[0][0] + 6371000 + 400000, earth.r[1]
 
 #probe = Spacecraft("Hitchhiker 1", [-658324968508.9681, 4877060969430.523, -291460841467.7062], cometv)
 
-probe.propogate_orbit(0, (arrival_date-departurte_date).total_seconds(), MU_SUN, celestial_bodies=bodies, t_eval=earth.times_in_seconds)
+probe.propogate_orbit(0, (arrival_date-departurte_date).total_seconds(), MU_SUN, celestial_bodies=bodies t_eval=earth.times_in_seconds)
 print("Loaded probe")
+
+distance_from_sun = []
+for x, y, z in zip(probe.r[0], probe.r[1], probe.r[2]):
+    distance_from_sun.append(np.linalg.norm([x, y, z])/AU)
+
+df_distance = pd.DataFrame({"Time (s)": probe.t, "Time (Years)": probe.t/(60*60*24*365.25), "Distance From Sun [AU]": distance_from_sun})
+
+df_distance.to_csv("Distance From Sun Over Time AU.csv", index=False)
 
 # print(probe.t[:6])
 # print(earth.times_in_seconds[:6])

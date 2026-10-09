@@ -69,15 +69,19 @@ if not filtered_df.empty:
 else:
     print("No trajectories found meeting the date criteria.")
 
-filtered_df = df[df['arrival_date_dt'] < '2028-03-31'].copy() #Neptune
+# filtered_df = df[df['arrival_date_dt'] < '2028-03-31'].copy() #Neptune
+filtered_df = df[df["v_relative_comet"]<= 2.3].copy()
 
 # 3. Find the trajectory row with the minimum relative velocity
 if not filtered_df.empty:
     # Option A: Get the single trajectory with the minimum velocity as a Series
     min_vrel_trajectory = filtered_df.loc[filtered_df['v_relative_comet'].idxmin()]
+    min_date_trajectory = filtered_df.loc[filtered_df['arrival_date_dt'].idxmin()]
 
     print("Minimum Relative Velocity Trajectory:")
     print(min_vrel_trajectory)
+    print("Minimum Arrival Trajectory:")
+    print(min_date_trajectory)
 else:
     print("No trajectories found meeting the date criteria.")
 
@@ -156,7 +160,7 @@ df_candidates = df.loc[mask].copy()
 filtered_df = df_candidates[df_candidates['arrival_date_dt'] < '2028-01-01'].copy()
 min_date_trajectory = filtered_df.loc[filtered_df['total_dv'].idxmin()]
 print(f"Min Date Trajecrtory:\n{min_date_trajectory}")
-exit()
+
 
 # =========================================================
 # Create 2D grids
@@ -372,10 +376,10 @@ vmin = np.nanmin(Z)
 
 # Set the upper colour limit.
 # Change this number depending on your data.
-vmax = 100  # km/s
+vmax = 10 # km/s
 
 # Number of colour levels
-levels = np.linspace(vmin, vmax, 300)
+levels = np.linspace(vmin, vmax, 20)
 
 
 # ---------------------------------------------------------
@@ -470,7 +474,7 @@ ax.xaxis.set_major_formatter(
 )
 
 ax.yaxis.set_major_locator(
-    mdates.MonthLocator(interval=2)
+    mdates.MonthLocator(interval=4)
 )
 
 ax.yaxis.set_major_formatter(
