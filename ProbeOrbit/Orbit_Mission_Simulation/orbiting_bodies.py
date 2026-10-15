@@ -91,7 +91,7 @@ class Spacecraft:
 
             return np.concatenate([v, a])
 
-        self.orbit_solutions = solve_ivp(dynamics, (t_start, t_final), np.concatenate([self.r0, self.v0]), method="DOP853", t_eval=t_eval, rtol=1e-11, atol=[1e-3, 1e-3, 1e-3, 1e-7, 1e-7, 1e-7])
+        self.orbit_solutions = solve_ivp(dynamics, (t_start, t_final), np.concatenate([self.r0, self.v0]), method="DOP853", t_eval=t_eval, rtol=1e-9, atol=[1e-3, 1e-3, 1e-3, 1e-7, 1e-7, 1e-7])
         self.t = self.orbit_solutions.t
         self.r = self.orbit_solutions.y[:3]
         self.v = self.orbit_solutions.y[3:6]

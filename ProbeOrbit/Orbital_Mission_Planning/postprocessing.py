@@ -212,10 +212,10 @@ vmin = np.nanmin(Z)
 
 # Set the upper colour limit.
 # Change this number depending on your data.
-vmax = 200  # km/s
+vmax = 100  # km/s
 
 # Number of colour levels
-levels = np.linspace(vmin, vmax, 400)
+levels = np.linspace(vmin, vmax, 100)
 
 
 # ---------------------------------------------------------
@@ -315,7 +315,7 @@ ax.xaxis.set_major_formatter(
 )
 
 ax.yaxis.set_major_locator(
-    mdates.MonthLocator(interval=2)
+    mdates.MonthLocator(interval=4)
 )
 
 ax.yaxis.set_major_formatter(

@@ -7,13 +7,14 @@ from ProbeOrbit.Orbit_Mission_Simulation.orbiting_bodies import CelestialBody, S
 from ProbeOrbit.Orbital_Mission_Planning.ephemeris import Ephemeris
 from ProbeOrbit.Orbit_Mission_Simulation.visualizer import Visualizer
 
+
 AU = 149597870700  # m
 MU_SUN = 1.32712440041279419e20 #m/s
 
 orbits = Ephemeris()
 
-departurte_date = datetime(2025, 12, 25) #1
-arrival_date = datetime(2030, 9, 12) # 2028, 6, 17) # peri_earth 2026, 12, 31
+departurte_date = datetime(2025, 12, 24) #12025-10-02T09:20:36
+arrival_date = datetime(2028, 3, 30) # 2028, 6, 17) # peri_earth 2026, 12, 31
 
 # departurte_date = datetime(2028, 6, 17) #1
 # arrival_date = datetime(2028, 6, 30)
@@ -39,11 +40,13 @@ print("Loaded Neptune")
 
 bodies = [comet, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune] # [earth, mars, jupiter]
 
-lambert_v1 = [-7511.64266923, 72730.28092553, -4079.3701725]  # worst case trajectory
+#lambert_v1 = [-7511.64266923, 72730.28092553, -4079.3701725]  # worst case trajectory
 #lambert_v1 = [-7913.41945658, 72851.45779273, -4085.08589239] # best case only couple AU difference
 # #v_inf = [ 5783.5129679 - earth.v[0][0], 70617.7458126 - earth.v[1][0], -4371.48300469 - earth.v[2][0]]
 # print(v_inf)
 # print(np.linalg.norm(v_inf))
+
+lambert_v0 = [-8936.48019442, 73147.43398416, -4097.73299108]
 
 #lambert_v1 = [-9025.33155895, 59006.35163239, -2759.07709438] # for peri earht
 #lambert_v0 = [1723.289 + earth.v[0][0], 39738.198 + earth.v[1][0], -4225.025 + earth.v[2][0]] # old
@@ -60,11 +63,11 @@ def probe_trhust(t):
         return 0
 
 
-probe = Spacecraft("Hitchhiker 1", [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]], lambert_v1) #, probe_trhust)
+probe = Spacecraft("Hitchhiker 1", [earth.r[0][0] + 6371000 + 400000, earth.r[1][0], earth.r[2][0]], lambert_v0) #, probe_trhust)
 
 #probe = Spacecraft("Hitchhiker 1", [-658324968508.9681, 4877060969430.523, -291460841467.7062], cometv)
 
-probe.propogate_orbit(0, (arrival_date-departurte_date).total_seconds(), MU_SUN, celestial_bodies=bodies t_eval=earth.times_in_seconds)
+probe.propogate_orbit(0, (arrival_date-departurte_date).total_seconds(), MU_SUN, celestial_bodies=bodies, t_eval=earth.times_in_seconds)
 print("Loaded probe")
 
 distance_from_sun = []

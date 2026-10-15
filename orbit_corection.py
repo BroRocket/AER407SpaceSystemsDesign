@@ -222,8 +222,10 @@ def run_batch():
 
 
 #Lambert departure velocity is your initial guess 2025-09-01,2026-01-31
-departurte_date = datetime(2025, 12, 25)
-arrival_date = datetime(2029, 2, 22)
+# departurte_date = datetime(2025, 12, 25)
+# arrival_date = datetime(2029, 2, 22)
+departurte_date = datetime(2025, 12, 24) #12025-10-02T09:20:36
+arrival_date = datetime(2028, 3, 20) 
 
 orbits = Ephemeris()
 comet = CelestialBody("3I/ATLAS", 0, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
@@ -250,7 +252,7 @@ bodies = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 
 #v0_guess = [21962.5 + earth.v[0][0], 73880.635 + earth.v[1][0], -4046.044 + earth.v[2][0]]  worst case trajectory
 
-v0_guess = [21791.305 + earth.v[0][0], 72874.236 + earth.v[1][0], -4046.292 + earth.v[2][0]]
+v0_guess = [20555.007 + earth.v[0][0], 73754.642 + earth.v[1][0], -4063.412 + earth.v[2][0]]  #min possible for 30AU             
                              
 #v0_guess = [-20965.46953130548 + earth.v[0][0], 28445.408514346955 + earth.v[1][0], -2497.2717286976667 + earth.v[2][0]]
 

@@ -106,8 +106,8 @@ class Visualizer:
         def update(frame):
             for line, point, body in zip(lines, points, all_objects):
                 # Slice position data up to the current frame and scale to AU
-                dim1_data = body.r[d1_idx][:(frame*100)] / AU
-                dim2_data = body.r[d2_idx][:(frame*100)] / AU
+                dim1_data = body.r[d1_idx][:(frame*50)] / AU
+                dim2_data = body.r[d2_idx][:(frame*50)] / AU
 
                 line.set_data(dim1_data, dim2_data)
                 
@@ -118,7 +118,7 @@ class Visualizer:
             return lines + points
 
         # 6. Create Animation
-        num_frames = int(len(self.spacecraft.r[0])/100)  
+        num_frames = int(len(self.spacecraft.r[0])/50)  
         
         # Store animation reference in 'self' to prevent Python garbage collection
         self.ani = FuncAnimation(fig, update, frames=num_frames, init_func=init, interval=5, blit=True)
