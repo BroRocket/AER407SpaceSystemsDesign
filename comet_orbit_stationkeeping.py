@@ -324,15 +324,16 @@ if __name__ == "__main__":
     departurte_date = START_DATE
     arrival_date = datetime(2035, 6, 10)
 
-    comet = CelestialBody(
-        "3I/ATLAS",
-        2202.52,
-        orbits,
-        "'DES=1004083'",
-        departurte_date,
-        arrival_date,
-        vec_type=2
-    )
+    # comet = CelestialBody(
+    #     "3I/ATLAS",
+    #     2202.52,
+    #     orbits,
+    #     "'DES=1004083'",
+    #     departurte_date,
+    #     arrival_date,
+    #     vec_type=2
+    # )
+    comet = CelestialBody("3I/ATLAS", 2202.52, departurte_date, arrival_date, csv_file="Ephemeris/3IATLAS.csv")
     print("Loaded comet")
 
     epoch = departurte_date
@@ -342,11 +343,12 @@ if __name__ == "__main__":
     # --------------------------------------------------------
 
     altitudes_km = np.array([
+        5,
+        10,
         50,
         100,
         1000,
-        10000,
-        100000
+        10000
     ])
 
     # --------------------------------------------------------

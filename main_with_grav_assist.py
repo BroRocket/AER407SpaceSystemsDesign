@@ -21,24 +21,44 @@ arrival_date = datetime(2028, 4, 20) # 2028, 6, 17) # peri_earth 2026, 12, 31
 # departurte_date = datetime(2028, 6, 17) #1
 # arrival_date = datetime(2028, 6, 30)
 
-comet = CelestialBody("3I/ATLAS", 2202.52, orbits, "'DES=1004083'", departurte_date, arrival_date, vec_type=2) # all in m^3/s^2
+# comet = CelestialBody("3I/ATLAS", 2202.52, departurte_date, arrival_date, csv_file="Ephemeris/3IATLAS.csv") # all in m^3/s^2
+# print("Loaded Comet")
+# mercury = CelestialBody("Mercury", 2.2031870799e13, departurte_date, arrival_date, csv_file="Ephemeris/MERCURY.csv")
+# print("Loaded Mercury")
+# venus = CelestialBody("Venus", 3.24858592e14, departurte_date, arrival_date, csv_file="Ephemeris/VENUS.csv")
+# print("Loaded Venus")
+# earth = CelestialBody("Earth", 3.986004418e14, departurte_date, arrival_date, csv_file="Ephemeris/EARTH.csv")
+# print("Loaded Earth")
+# mars = CelestialBody("Mars", 4.282837e13, departurte_date, arrival_date, csv_file="Ephemeris/MARS.csv")
+# print("Loaded Mars")
+# jupiter = CelestialBody("Jupiter", 1.26686534e17, departurte_date, arrival_date, csv_file="Ephemeris/JUPITER.csv")
+# print("Loaded Jupiter")
+# saturn = CelestialBody("Saturn", 3.7931187e16, departurte_date, arrival_date, csv_file="Ephemeris/SATURN.csv")
+# print("Loaded Saturn")
+# uranus = CelestialBody("Uranus", 5.793939e15, departurte_date, arrival_date, csv_file="Ephemeris/URANUS.csv")
+# print("Loaded Uranus")
+# neptune = CelestialBody("Neptune", 6.836529e15, departurte_date, arrival_date, csv_file="Ephemeris/NEPTUNE.csv")
+# print("Loaded Neptune")
+
+comet = CelestialBody("3I/ATLAS", 2202.52, departurte_date, arrival_date, orbits, "'DES=1004083'") # all in m^3/s^2
 print("Loaded Comet")
-mercury = CelestialBody("Mercury", 2.2031870799e13, orbits, "'199'", departurte_date, arrival_date, vec_type=2)
+mercury = CelestialBody("Mercury", 2.2031870799e13, departurte_date, arrival_date,  orbits, "'199'")
 print("Loaded Mercury")
-venus = CelestialBody("Venus", 3.24858592e14, orbits, "'299'", departurte_date, arrival_date, vec_type=2)
+venus = CelestialBody("Venus", 3.24858592e14, departurte_date, arrival_date, orbits, "'299'")
 print("Loaded Venus")
-earth = CelestialBody("Earth", 3.986004418e14, orbits, "'399'", departurte_date, arrival_date, vec_type=2)
+earth = CelestialBody("Earth", 3.986004418e14, departurte_date, arrival_date,  orbits, "'399'")
 print("Loaded Earth")
-mars = CelestialBody("Mars", 4.282837e13, orbits, "'499'", departurte_date, arrival_date, vec_type=2)
+mars = CelestialBody("Mars", 4.282837e13, departurte_date, arrival_date,  orbits, "'499'")
 print("Loaded Mars")
-jupiter = CelestialBody("Jupiter", 1.26686534e17, orbits, "'599'", departurte_date, arrival_date, vec_type=2)
+jupiter = CelestialBody("Jupiter", 1.26686534e17, departurte_date, arrival_date,  orbits, "'599'")
 print("Loaded Jupiter")
-saturn = CelestialBody("Saturn", 3.7931187e16, orbits, "'699'", departurte_date, arrival_date, vec_type=2)
+saturn = CelestialBody("Saturn", 3.7931187e16, departurte_date, arrival_date, orbits, "'699'")
 print("Loaded Saturn")
-uranus = CelestialBody("Uranus", 5.793939e15, orbits, "'799'", departurte_date, arrival_date, vec_type=2)
+uranus = CelestialBody("Uranus", 5.793939e15, departurte_date, arrival_date,  orbits, "'799'")
 print("Loaded Uranus")
-neptune = CelestialBody("Neptune", 6.836529e15, orbits, "'899'", departurte_date, arrival_date, vec_type=2)
+neptune = CelestialBody("Neptune", 6.836529e15, departurte_date, arrival_date,  orbits, "'899'")
 print("Loaded Neptune")
+
 
 bodies = [comet, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune] # [earth, mars, jupiter]
 
