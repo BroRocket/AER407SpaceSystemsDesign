@@ -31,7 +31,7 @@ class Pipe():
         velocity = mass_flow / (self.rho * self.area)
         
         Re_d = (4 * mass_flow) / (self.dynamic_viscocity * math.pi * self.pipe_diameter)
-        print(f"{velocity}, {Re_d}")
+        #print(f"{velocity}, {Re_d}")
 
         def Colebrook_White(f):
             LHS = 1 / math.sqrt(f[0])
@@ -49,7 +49,7 @@ class Pipe():
         k = f * (self.pipe_length / self.pipe_diameter)
         p_loss = k * 0.5 * self.rho * (velocity**2)
         
-        return float(p_loss)
+        return p_loss
 
 
 ## Validation ##
@@ -58,16 +58,16 @@ if __name__ == "__main__":
     D2 = 0.0127
     D3 = 0.0254
     roughness = 0.015/1000
-    m_dot = 0.0307
-    rho = 800
+    m_dot = 0.30726958877769517
+    rho = 1380
    
-    pipe1 = Pipe(1.0, D1, 800, 0.00164, roughness)
+    pipe1 = Pipe(1.0, D1, rho, 0.0004427, roughness)
     p_loss1 = pipe1.pressure_loss(m_dot)
 
-    pipe2 = Pipe(1.0, D2, 800, 0.00164, roughness)
+    pipe2 = Pipe(1.0, D2, rho, 0.0004427, roughness)
     p_loss2 = pipe2.pressure_loss(m_dot)
 
-    pipe3 = Pipe(1.0, D3, 800, 0.00164, roughness)
+    pipe3 = Pipe(1.0, D3, rho, 0.0004427, roughness)
     p_loss3 = pipe3.pressure_loss(m_dot)  
 
     print(f"dp (1/4): {(p_loss1/ 6895):.4f} psi, dp (1/2): {(p_loss2/  6895):.4f} psi, dp (1): {(p_loss3/  6895):.4f} psi")
