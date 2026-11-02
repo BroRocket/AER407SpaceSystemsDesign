@@ -260,7 +260,7 @@ distance_from_sun = []
 for x, y, z in zip(probe.r[0], probe.r[1], probe.r[2]):
     distance_from_sun.append(np.linalg.norm([x, y, z])/AU)
  
-df_distance = pd.DataFrame({"Time (s)": probe.t, "Time (Years)": probe.t/(60*60*24*365.25), "Distance From Sun [AU]": distance_from_sun})
+df_distance = pd.DataFrame({"Time (s)": probe.t, "Time (Years)": probe.t/(60*60*24*365.25), "Distance From Sun [AU]": distance_from_sun, "X [m]": probe.r[0], "Y [m]": probe.r[1], "Z [m]": probe.r[2]})
  
 df_distance.to_csv("Distance From Sun Over Time AU.csv", index=False)
  

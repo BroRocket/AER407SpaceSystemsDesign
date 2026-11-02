@@ -45,4 +45,3 @@ class Propellant:
             "viscosity": UnitValue.create_unit("kg/ms", mu * 0.1),
             "saturation_pressure": UnitValue.create_unit('psi', P_sat).convert_base_metric()
         }
-

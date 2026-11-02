@@ -10,10 +10,13 @@ from propellant import Propellant
 '''UNIVERSAL CONSTANTS'''
 
 G = UnitValue.create_unit("m/s^2", 9.807)
+RU = 8.314462618 
 
 '''Propellants'''
 MMH = Propellant("MMH")
+R_MMH =  UnitValue.create_unit("J/kgK", RU * 1000 / MMH.prop.MolWt)
 MON25 = Propellant("MON25")
+R_MON25 =  UnitValue.create_unit("J/kgK", RU * 1000 / MON25.prop.MolWt)
 
 '''MISSION CONSTANTS'''
 
@@ -38,11 +41,27 @@ COMBUSTION_PRESSURE = UnitValue.create_unit("bar", 10.35).convert_base_metric()
 
 O_F_RATIO =  1.65 #2.649, not stoich so engine does not overheat
 
+# '''Propellant Tank Material Properties
+#  Material 304L Stainless Steel (https://www.azom.com/equipment-details.aspx?EquipID=5300)
+# '''
+# PROPELLANT_TANK_DENSITY = UnitValue.create_unit("kg/m^3", 7.93 * 1000) #g/cm converted to kg/m^3
+# PROPELLANT_TANK_YIELD_STRENGTH = UnitValue.create_unit("MPa", 170).convert_base_metric() # 0.2% proof (MPa) maverage
+
+# '''Propellant Tank Material Properties
+#  Material Aluminium 2219-T87 (https://sunshinemetals.com/content/product-sheets/Alloy_2219.pdf)
+# '''
+# PROPELLANT_TANK_DENSITY = UnitValue.create_unit("kg/m^3", 2.84 * 1000) #g/cm converted to kg/m^3
+# PROPELLANT_TANK_YIELD_STRENGTH = UnitValue.create_unit("MPa", 393).convert_base_metric() # 0.2% proof (MPa) maverage
+
 '''Propellant Tank Material Properties
- Material Ti-6%Al-4%V (https://www.azom.com/article.aspx?ArticleID=1341)
+ Material Ti-6Al-4V (https://www.rolledalloys.com/wp-content/uploads/6AL4V_Data-sheet.pdf)
 '''
-PROPELLANT_TANK_DENSITY = UnitValue.create_unit("kg/m^3", 4.42 * 1000).convert_base_metric() #g/cm converted to kg/m^3
-PROPELLANT_TANK_YIELD_STRENGTH = UnitValue.create_unit("MPa", 1100).convert_base_metric() # 0.02% proof (MPa)
+PROPELLANT_TANK_DENSITY = UnitValue.create_unit("kg/m^3", 4.42 * 1000) #g/cm converted to kg/m^3
+PROPELLANT_TANK_YIELD_STRENGTH = UnitValue.create_unit("MPa", 985.95).convert_base_metric() # 0.2% proof (MPa) maverage
+
+#DIAPHRAGM MATERIAL AF-E-332
+DIAPHRAGM_DENSITY = UnitValue.create_unit("kg/m^3", 1070).convert_base_metric()
+DIAPHRAGM_THICKNESS = UnitValue.create_unit("mm", 1.8).convert_base_metric()
 
 FILL_FACTOR = 0.95
 
@@ -59,29 +78,83 @@ MAIN_FUEL_VALVE_IDIAMTER = UnitValue.create_unit("mm", 12.9)
 MAIN_FUEL_VALVE_CV = 7.5
 
 '''Helium Tank Material Properties
-Assumes Composite Tank
+Assumes Composite T700G COPV https://toray-cfe.com/wp-content/uploads/2025/02/Torayca-T700G-Technical-Data-Sheet.pdf
 '''
-HE_TANK_DENSITY = UnitValue.create_unit("kg/m^3", 1600).convert_base_metric() #g/cm converted to kg/m^3
-HE_TANK_YIELD_STRENGTH = UnitValue.create_unit("MPa", 1300).convert_base_metric() # 0.02% proof (MPa)
+HE_TANK_DENSITY = UnitValue.create_unit("kg/m^3", 1790).convert_base_metric() #g/cm converted to kg/m^3
+HE_TANK_ULTIMATE_TENSILE_STRENGTH = UnitValue.create_unit("MPa", 4900).convert_base_metric() # 0.02% proof (MPa)
 
 '''HELIUM TANK CHARACTERSITICS'''
 #assume want COPV pressure > 1000psi and start at 2000psi
-COPV_MAX_PRESSURE = UnitValue.create_unit("psig", 2000).convert_base_metric()
+COPV_MAX_PRESSURE = UnitValue.create_unit("psig", 3000).convert_base_metric()
 COPV_MIN_PRESSURE = UnitValue.create_unit("psig", 1000).convert_base_metric()
+COPV_METAL_LINER_THICKNESS = UnitValue.create_unit("mm", 1.5).convert_base_metric()
+COPV_METAL_LINER_DENSITY = UnitValue.create_unit("kg/m^3", 2.84 * 1000) # Aluminum Liner Aluminium 2219-T87 
+
 HE_PIPE_LENGHTS1 = UnitValue.create_unit("m", 2) # represents parts of lines up to both regulators
 HE_PIPE_IDIAMETER1 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 HE_PIPE_LENGHTS2 = UnitValue.create_unit("m", 0.5) # represents parts of lines into one tanks and it's vent channels
 HE_PIPE_IDIAMETER2 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 
-R_HELIUM = UnitValue.create_unit("J/kgK", 2077.1)
+R_HELIUM = UnitValue.create_unit("J/kgK", 2077.1) #296.8 for N2
+
+'''MOMENTUM DUMPIN REQUIREMENTS'''
+MAX_NUMBER_OF_DUMPS = 160
+ANGULAR_MOMENTUM_PER_DUMP = UnitValue.create_unit("kgm^2/s", 17.7)
+TOTAL_REQUIRED_ANGULAR_MOMENTUM = MAX_NUMBER_OF_DUMPS * ANGULAR_MOMENTUM_PER_DUMP
 
 '''SAFETY FACTORS AND MARGINS'''
 STRUCTURAL_SAFETY_FACTOR = 2
+COPV_STRUCTURAL_SAFETY_FACTOR = 2.5
 TANK_PRESSURE_MARGIN = 1.5
-MAX_LAUNCH_G = 11
+MAX_LAUNCH_G = 11 #From SpaceX user guide
 
 
-def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pressure_guess: UnitValue, MON25_tank_pressure_guess: UnitValue, verbose: bool = False):
+def cold_gas_attitude_control_system() -> tuple[UnitValue, UnitValue]: 
+    THRUSTER_THRUST = UnitValue.create_unit("N", 3.6) # Newtons
+    ISP = UnitValue.create_unit("s", 140) # seconds
+    NUMBER_OF_THRUSTERS = 6
+    THRUSTER_MASS = UnitValue.create_unit("kg", 0.023)
+    REACTION_ARM = UnitValue.create_unit("m", 1)
+    VALVE_MASS = UnitValue.create_unit("kg", 0.635)
+    PRESSURE_REGULATOR_MASS = UnitValue.create_unit("kg", 1.2)
+
+    # Get total required burn time from required angular momentum
+    thruster_moment_force = THRUSTER_THRUST * REACTION_ARM
+    total_required_burn_time = TOTAL_REQUIRED_ANGULAR_MOMENTUM / thruster_moment_force
+
+    # Get proppelant and thruster mass
+    thruster_mass_flow = THRUSTER_THRUST / (ISP * G)
+    cold_gas_mass = thruster_mass_flow * total_required_burn_time
+    attitude_control_system_mass = NUMBER_OF_THRUSTERS * THRUSTER_MASS + VALVE_MASS + PRESSURE_REGULATOR_MASS
+
+    return cold_gas_mass, attitude_control_system_mass
+
+def bipropelant_attitude_control_system() -> tuple[UnitValue, UnitValue, UnitValue]: 
+    THRUSTER_THRUST = UnitValue.create_unit("N", 10)
+    ISP = UnitValue.create_unit("s", 292)
+    NUMBER_OF_THRUSTERS = 6
+    THRUSTER_MASS = UnitValue.create_unit("kg", 0.350)
+    OF_RATIO = 1.65
+    REACTION_ARM = UnitValue.create_unit("m", 1)
+    VALVE_MASS = UnitValue.create_unit("kg", 0.545)
+
+    thruster_mass_flow = THRUSTER_THRUST / (ISP * G)
+    # Get total required burn time from required angular momentum
+    thruster_moment_force = THRUSTER_THRUST * REACTION_ARM
+    total_required_burn_time = TOTAL_REQUIRED_ANGULAR_MOMENTUM / thruster_moment_force
+
+    # Get proppelant and thruster mass
+    thruster_mass_flow = THRUSTER_THRUST / (ISP * G)
+    MMH_mass_flow = thruster_mass_flow / (1 + O_F_RATIO)
+    MMH_mass = MMH_mass_flow * total_required_burn_time
+    MON25_mass_flow = thruster_mass_flow - MMH_mass_flow
+    MON25_mass = MON25_mass_flow * total_required_burn_time
+    attitude_control_system_mass = NUMBER_OF_THRUSTERS * THRUSTER_MASS + 2 * VALVE_MASS 
+
+    return MMH_mass, MON25_mass, attitude_control_system_mass
+
+
+def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pressure_guess: UnitValue, MON25_tank_pressure_guess: UnitValue, AC_system_type: str, verbose: bool = False):
     '''Main fucniton to do system sizing calcs'''
 
     MMH_prev_pressure = UnitValue.create_unit("Pa", 0)
@@ -90,7 +163,7 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
     MON25_new_pressure = MON25_tank_pressure_guess 
 
     #loop until pressure match is found
-    while abs(MMH_new_pressure - MMH_prev_pressure) > 0.1 and abs(MON25_new_pressure - MON25_prev_pressure) > 0.01:
+    while abs(MMH_new_pressure - MMH_prev_pressure) > 0.1 or abs(MON25_new_pressure - MON25_prev_pressure) > 0.01:
 
         MMH_prev_pressure = MMH_new_pressure
         MON25_prev_pressure = MON25_new_pressure
@@ -149,9 +222,28 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
         MMH_new_pressure = MMH_tank_outlet_pressure
         MON25_new_pressure = MON25_tank_outlet_pressure
 
-    #Add Fill factor to ensure sufficient ullage space
-    MMH_tank_inner_volume_w_fill_factor = MMH_volume / FILL_FACTOR
-    MON25_tank_inner_volume_w_fill_factor = MON25_volume / FILL_FACTOR
+    if AC_system_type.lower() == "bi":
+        MMH_attitude_control_mass, MON25_attitude_control_mass, attitude_control_system_mass = bipropelant_attitude_control_system()
+        mass_MMH += MMH_attitude_control_mass
+        mass_MON25 += MON25_attitude_control_mass
+        attitude_control_propellant_mass = MMH_attitude_control_mass + MON25_attitude_control_mass
+
+    # Detemrine tank volume considering the extra proppelant required due to evaporation of the propelant into the ullage space
+    # considering that for burns you need the given inital calclated fuel amass so muh bring extar propellant to account for evaporation
+    # Since the Ulage pressure is based on an empty tank and this gives the largest volme to consider in evaporation calcs use this 
+    # NOTE TIS IS VERY VERY CONSERVATIVE FOR A DIAPHRAGM TANK
+    MMH_tank_inner_volume_w_fill_factor = (mass_MMH / ((MMH_density * FILL_FACTOR) - (MMH_saturation_pressure / (R_MMH * system_temperature)))) 
+    MMH_mass_evaporated = (MMH_saturation_pressure * MMH_tank_inner_volume_w_fill_factor) / (R_MMH * system_temperature)
+    mass_MMH += MMH_mass_evaporated
+    MMH_volume = mass_MMH / MMH_density
+
+    MON25_tank_inner_volume_w_fill_factor = (mass_MON25 / ((MON25_density * FILL_FACTOR) - (MON25_saturation_pressure / (R_MON25 * system_temperature)))) 
+    MON25_mass_evaporated = (MON25_saturation_pressure * MON25_tank_inner_volume_w_fill_factor) / (R_MON25 * system_temperature)
+    mass_MON25 += MON25_mass_evaporated
+    MON25_volume = mass_MON25 / MON25_density
+
+    #re update total mass now that evaporated fuel mass considered
+    total_propelant_mass = mass_MMH + mass_MON25
 
     #spherical tank stress /sigma = p*r / 2t
     MMH_sph_tank_inner_rad = ((MMH_tank_inner_volume_w_fill_factor * (3/4)) / math.pi) ** (1/3)
@@ -184,7 +276,15 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
     MMH_rounded_tank_outer_volume = 4/3 * math.pi * ((MMH_tank_inner_rad_rounded + MMH_rounded_thickness)** 3)
     MON25_rounded_tank_outer_volume = 4/3 * math.pi * ((MON25_tank_inner_rad_rounded + MON25_rounded_thickness) ** 3)
 
-    #compute ullage space with rounding
+    #Compute Diagphram mass as is positive expulsion tank, assume elastomer covers 1/2 hemisphere
+    MMH_half_hemisphere_area = (4 * math.pi * MMH_tank_inner_rad_rounded ** 2) / 2
+    MON25_half_hemisphere_area = (4 * math.pi * MON25_tank_inner_rad_rounded ** 2) / 2
+    MMH_diaphragm_volume = MMH_half_hemisphere_area * DIAPHRAGM_THICKNESS
+    MON25_diaphragm_volume = MON25_half_hemisphere_area * DIAPHRAGM_THICKNESS
+    MMH_diaphragm_mass = MMH_diaphragm_volume * DIAPHRAGM_DENSITY
+    MON25_diaphragm_mass = MON25_diaphragm_volume * DIAPHRAGM_DENSITY
+
+    #compute INITIAL ullage space with rounding 
     MMH_Ullage_volume = MMH_rounded_tank_inner_volume - MMH_volume
     MON25_Ullage_volume = MON25_rounded_tank_inner_volume - MON25_volume
 
@@ -201,24 +301,40 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
     # Determine estimate of mass of helium in the pipes up to regulators and then pipes leading to tanks and in vent channel
     HE_mass_in_lines =  ((COPV_MAX_PRESSURE / (R_HELIUM * system_temperature)) * HE_PIPE_LENGHTS1 * (math.pi / 4) * HE_PIPE_IDIAMETER1 ** 2) + ((MMH_tank_outlet_pressure / (R_HELIUM * system_temperature)) * HE_PIPE_LENGHTS2 * (math.pi / 4) * HE_PIPE_IDIAMETER2 ** 2 ) + ((MON25_tank_outlet_pressure / (R_HELIUM * system_temperature)) * HE_PIPE_LENGHTS2 * (math.pi / 4) * HE_PIPE_IDIAMETER2 ** 2 )
 
-    #Detemrine HE tank size
-    '''Maybe use non ideal gas law here fro Helium'''
-    HE_copv_inner_volume = ((HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines) * R_HELIUM * system_temperature) / (COPV_MAX_PRESSURE - COPV_MIN_PRESSURE)
-    HE_copv_inner_radius = ((HE_copv_inner_volume * (3/4)) / math.pi) ** (1/3)
-    HE_copv_inner_radius_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_inner_radius * 10 ** 3) / 10 **3)
+    if AC_system_type.lower() == "cg":
+        HE_mass_attitude_control, attitude_control_system_mass = cold_gas_attitude_control_system()
+        attitude_control_propellant_mass = HE_mass_attitude_control
+        #Detemrine HE requried volume
+        '''Maybe use non ideal gas law here fro Helium'''
+        HE_copv_inner_volume = ((HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines + HE_mass_attitude_control) * R_HELIUM * system_temperature) / (COPV_MAX_PRESSURE - COPV_MIN_PRESSURE)
+        HE_copv_inner_radius = ((HE_copv_inner_volume * (3/4)) / math.pi) ** (1/3)
+        HE_copv_inner_radius_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_inner_radius * 10 ** 3) / 10 **3)
 
-    #Find He tank wall thickness
-    HE_copv_thickness = (COPV_MAX_PRESSURE * TANK_PRESSURE_MARGIN * HE_copv_inner_radius_rounded) / (2 * (HE_TANK_YIELD_STRENGTH / STRUCTURAL_SAFETY_FACTOR))
-    HE_copv_thickness_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_thickness * 10 ** 3) / 10 ** 3)
-    HE_copv_outer_volume_rounded = 4/3 * math.pi * (HE_copv_thickness_rounded + HE_copv_inner_radius_rounded) ** 3
+    else:
+        #Detemrine HE requried volume
+        '''Maybe use non ideal gas law here fro Helium'''
+        HE_copv_inner_volume = ((HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines) * R_HELIUM * system_temperature) / (COPV_MAX_PRESSURE - COPV_MIN_PRESSURE)
+        HE_copv_inner_radius = ((HE_copv_inner_volume * (3/4)) / math.pi) ** (1/3)
+        HE_copv_inner_radius_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_inner_radius * 10 ** 3) / 10 **3)
+
+    #Find He COPV wall thickness
     HE_copv_inner_volume_rounded = 4/3 * math.pi * (HE_copv_inner_radius_rounded) ** 3
-
+    HE_copv_inner_raidus_with_liner = HE_copv_inner_radius_rounded + COPV_METAL_LINER_THICKNESS
+    HE_copv_liner_material_volume = 4/3 * math.pi * (HE_copv_inner_radius_rounded + COPV_METAL_LINER_THICKNESS) ** 3 - HE_copv_inner_volume_rounded
+    HE_liner_mass = HE_copv_liner_material_volume * COPV_METAL_LINER_DENSITY
+    HE_copv_thickness = (COPV_MAX_PRESSURE * TANK_PRESSURE_MARGIN * HE_copv_inner_raidus_with_liner) / (2 * (HE_TANK_ULTIMATE_TENSILE_STRENGTH / COPV_STRUCTURAL_SAFETY_FACTOR))
+    HE_copv_thickness_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_thickness * 10 ** 3) / 10 ** 3)
+    HE_copv_outer_volume_rounded = 4/3 * math.pi * (HE_copv_thickness_rounded + HE_copv_inner_raidus_with_liner) ** 3
+    
     HE_mass_unusable = (COPV_MIN_PRESSURE * HE_copv_inner_volume_rounded) / (R_HELIUM * system_temperature)
     #Detemrine total mass of He required 
-    HE_total_mass = HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines + HE_mass_unusable
+    if AC_system_type.lower() == "cg":
+        HE_total_mass = HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines + HE_mass_unusable + HE_mass_attitude_control
+    else:
+        HE_total_mass = HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines + HE_mass_unusable
 
-    HE_copv_material_volume = HE_copv_outer_volume_rounded - HE_copv_inner_volume_rounded
-    HE_copv_mass = HE_TANK_DENSITY * HE_copv_material_volume
+    HE_copv_material_volume = HE_copv_outer_volume_rounded - (4/3 * math.pi * HE_copv_inner_raidus_with_liner ** 3)
+    HE_copv_mass = (HE_TANK_DENSITY * HE_copv_material_volume) + HE_liner_mass
 
     if verbose == True:
         print(MMH_properties)
@@ -229,6 +345,8 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
         print(f"{mass_MON25} of MON25\nMass Flow MON25: {mass_flow_MON25}")
         print(f"Volume of MMH: {MMH_volume}")
         print(f"Volume of MON25: {MON25_volume}")
+        print(f"Mass of Evaporated MMH; {MMH_mass_evaporated}")
+        print(f"Mass of Evaporated MON25; {MON25_mass_evaporated}")
         print("="*20)
 
         print(f"MMH Tank Inner Radius: {MMH_sph_tank_inner_rad}, rounded: {MMH_tank_inner_rad_rounded}")
@@ -243,16 +361,20 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
         print(f'Max Tank pressure (MMH) with {TANK_PRESSURE_MARGIN} Pressure Margin: {MMH_max_tank_pressure}')
 
         print("="*20)
-        print(f"Final MMH Tank Specifications:\n    -Inner Diameter: {2*MMH_tank_inner_rad_rounded}\n   -Wall Thickness: {MMH_rounded_thickness}\n    -Outer Diameter: {(MMH_tank_inner_rad_rounded + MMH_rounded_thickness)*2}\n   -Outer Volume: {MMH_rounded_tank_outer_volume}\n   -Inner Volume: {MMH_rounded_tank_inner_volume}\n    -Tank Mass: {MMH_tank_mass}\n    -Ullage Volume: {MMH_Ullage_volume}\n  -Ullage  Percent: {MMH_Ullage_volume/MMH_rounded_tank_inner_volume*100}%")
-        print(f"Final MON25 Tank Specifications:\n    -Inner Diameter: {2*MON25_tank_inner_rad_rounded}\n   -Wall Thickness: {MON25_rounded_thickness}\n    -Outer Diameter: {(MON25_tank_inner_rad_rounded + MON25_rounded_thickness)*2}\n   -Outer Volume: {MON25_rounded_tank_outer_volume}\n  -Inner Volume: {MON25_rounded_tank_inner_volume}\n    -Tank Mass: {MON25_tank_mass}\n  -Ullage Volume: {MON25_Ullage_volume}\n  -Ullage  Percent: {MON25_Ullage_volume/MON25_rounded_tank_inner_volume*100}%")
+        print(f"Final MMH Tank Specifications:\n    -Inner Diameter: {2*MMH_tank_inner_rad_rounded}\n   -Wall Thickness: {MMH_rounded_thickness}\n    -Outer Diameter: {(MMH_tank_inner_rad_rounded + MMH_rounded_thickness)*2}\n   -Outer Volume: {MMH_rounded_tank_outer_volume}\n   -Inner Volume: {MMH_rounded_tank_inner_volume}\n    -Tank Mass: {MMH_tank_mass}\n    -Diaphragm Mass: {MMH_diaphragm_mass}\n    -Ullage Volume: {MMH_Ullage_volume}\n  -Ullage  Percent: {MMH_Ullage_volume/MMH_rounded_tank_inner_volume*100}%")
+        print(f"Final MON25 Tank Specifications:\n    -Inner Diameter: {2*MON25_tank_inner_rad_rounded}\n   -Wall Thickness: {MON25_rounded_thickness}\n    -Outer Diameter: {(MON25_tank_inner_rad_rounded + MON25_rounded_thickness)*2}\n   -Outer Volume: {MON25_rounded_tank_outer_volume}\n  -Inner Volume: {MON25_rounded_tank_inner_volume}\n    -Tank Mass: {MON25_tank_mass}\n  -Diaphragm Mass: {MON25_diaphragm_mass}\n    -Ullage Volume: {MON25_Ullage_volume}\n  -Ullage  Percent: {MON25_Ullage_volume/MON25_rounded_tank_inner_volume*100}%")
         print("="*20)
 
         print(f"He Mass per Tank: MMH Tank: {HE_mass_MMH_tank}, MON25 Tank: {HE_mass_MON25_tank}")
         print(f"HE Mass Flow per Tank: MMH Tank: {HE_massflow_MMH_tank}, MON25 Tank: {HE_massflow_MON25_tank}")
 
         print("="*20)
-        print(f"Final HE Tank Specifications:\n    -Inner Diameter: {2*HE_copv_inner_radius_rounded}\n   -Wall Thickness: {HE_copv_thickness_rounded}\n    -Outer Diameter: {(HE_copv_thickness_rounded + HE_copv_inner_radius_rounded)*2}\n   -Outer Volume: {HE_copv_outer_volume_rounded}\n   -Inner Volume: {HE_copv_inner_volume_rounded}\n    -Tank Mass: {HE_copv_mass}\n    -He Mass: {HE_total_mass}")
+        print(f"Final HE Tank Specifications:\n    -Inner Diameter: {2*HE_copv_inner_radius_rounded}\n   -Wall Thickness: {HE_copv_thickness_rounded + COPV_METAL_LINER_THICKNESS}\n    -Outer Diameter: {(HE_copv_thickness_rounded + COPV_METAL_LINER_THICKNESS + HE_copv_inner_radius_rounded)*2}\n   -Outer Volume: {HE_copv_outer_volume_rounded}\n   -Inner Volume: {HE_copv_inner_volume_rounded}\n    -Tank Mass: {HE_copv_mass}\n    -He Mass: {HE_total_mass}")
         print("="*20)
+        print(f"Attitude Control Component's Mass: {attitude_control_system_mass}")
+        print(f"Attitude Control Proppelant Mass: {attitude_control_propellant_mass}")
+        print("="*20)
+        print(f"Total System Mass: {total_propelant_mass + MMH_tank_mass + MON25_tank_mass + MMH_diaphragm_mass + MON25_diaphragm_mass + HE_copv_mass + HE_total_mass + attitude_control_system_mass}")
 
     return {"MMH TANK": {
             "Operating Ullage Pressure": MMH_tank_outlet_pressure,
@@ -267,7 +389,9 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
             "Ullage Volume": MMH_Ullage_volume,
             "Ullage Percent": MMH_Ullage_volume / MMH_rounded_tank_inner_volume * 100,
             "Tank Mass": MMH_tank_mass,
+            "Diaphragm Mass": MMH_diaphragm_mass,
             "MMH Mass": mass_MMH,
+            "MMH Maximum Evaporated Mass": MMH_mass_evaporated,
             "MMH Mass Flow": mass_flow_MMH
             },
             "MON25 TANK": {
@@ -283,14 +407,16 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
             "Ullage Volume": MON25_Ullage_volume,
             "Ullage Percent": MON25_Ullage_volume / MON25_rounded_tank_inner_volume * 100,
             "Tank Mass": MON25_tank_mass,
+            "Diaphragm Mass": MON25_diaphragm_mass,
             "MON25 Mass": mass_MON25,
+            "MON25 Maximum Evaporated Mass": MON25_mass_evaporated,
             "MON25 Mass Flow": mass_flow_MON25
             },
             "HE TANK": {
             "Max Design Tank Pressure": COPV_MAX_PRESSURE * TANK_PRESSURE_MARGIN,
             "Inner Diameter": 2*HE_copv_inner_radius_rounded,
             "Wall Thickness": HE_copv_thickness_rounded,
-            "Outer Diameter": (HE_copv_inner_radius_rounded + HE_copv_thickness_rounded)*2,
+            "Outer Diameter": (HE_copv_inner_radius_rounded + HE_copv_thickness_rounded + COPV_METAL_LINER_THICKNESS)*2,
             "Outer Volume": HE_copv_outer_volume_rounded,
             "Inner Volume": HE_copv_inner_volume_rounded,
             "Tank Mass": HE_copv_mass,
@@ -302,15 +428,23 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
             "He_mass_for_MMH_tank": HE_mass_MMH_tank,
             "He_mass_for_MON25_tank": HE_mass_MON25_tank,
             "He_mass_in_lines": HE_mass_in_lines
-            }
+            },
+            "ATTITUDE CONTROL MASS": attitude_control_system_mass
         }
 
-def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_pressure_guess: UnitValue, MON25_tank_pressure_guess: UnitValue, verbose:bool = False):
+
+def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_pressure_guess: UnitValue, MON25_tank_pressure_guess: UnitValue, system_type: str, verbose:bool = False):
     results = {
             "Temperature": [],
             # Masses
             "MMH Tank Mass": [],
+            "MMH Diaphragm Mass": [],
+            "MMH Mass": [],
+            "MMH Evaporated Mass": [],
             "MON25 Tank Mass": [],
+            "MON25 Diaphragm Mass": [],
+            "MON25 Mass": [],
+            "MON25 Evaporated Mass": [],
             "HE Tank Mass": [],
             "He Total Mass": [],
             "He Usable Mass": [],
@@ -340,7 +474,10 @@ def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_
             "He MON25 Tank": [],
             "He Lines": [],
             "He MMH Flow": [],
-            "He MON25 Flow": []
+            "He MON25 Flow": [],
+
+            #Attitude Control
+            "Attitude Control System Mass": []
         }
 
     t1.to("K")
@@ -351,7 +488,7 @@ def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_
     while current_temp <= t2:
 
         print(f"\nCalculating at {current_temp.to('C')}")
-        system_result = calculate_system_characterisitcs(current_temp, MMH_tank_pressure_guess, MON25_tank_pressure_guess, verbose=False)
+        system_result = calculate_system_characterisitcs(current_temp, MMH_tank_pressure_guess, MON25_tank_pressure_guess, system_type, verbose=False)
 
         MMH_result = system_result["MMH TANK"]
         MON25_result = system_result["MON25 TANK"]
@@ -364,20 +501,34 @@ def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_
 
         # Masses
         results["MMH Tank Mass"].append(MMH_result["Tank Mass"].value)
+        results["MMH Diaphragm Mass"].append(MMH_result["Diaphragm Mass"].value)
+        results["MMH Mass"].append(MMH_result["MMH Mass"].value)
+        results["MMH Evaporated Mass"].append(MMH_result["MMH Maximum Evaporated Mass"].value)
         results["MON25 Tank Mass"].append(MON25_result["Tank Mass"].value)
+        results["MON25 Diaphragm Mass"].append(MMH_result["Diaphragm Mass"].value)
+        results["MON25 Mass"].append(MON25_result["MON25 Mass"].value)
+        results["MON25 Evaporated Mass"].append(MON25_result["MON25 Maximum Evaporated Mass"].value)
         results["HE Tank Mass"].append(HE_result["Tank Mass"].value)
 
         results["He Total Mass"].append(HE_result["He Total Mass"].value)
         results["He Usable Mass"].append(HE_result["He Usable Mass"].value)
         results["He Unusable Mass"].append(HE_result["He Unusable Mass"].value)
 
+        results["Attitude Control System Mass"].append(system_result["ATTITUDE CONTROL MASS"].value)
+
         # Total variable system mass
         total_mass = (
             MMH_result["Tank Mass"]
             + MON25_result["Tank Mass"]
+            + MMH_result["Diaphragm Mass"]
+            + MON25_result["Diaphragm Mass"]
+            + MMH_result["MMH Mass"]
+            + MON25_result["MON25 Mass"]
             + HE_result["Tank Mass"]
             + HE_result["He Total Mass"]
+            + system_result["ATTITUDE CONTROL MASS"]
         )
+        
 
         results["Total Mass"].append(total_mass.value)
 
@@ -422,6 +573,7 @@ def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_
 
     if verbose == True:
         T = results["Temperature"]
+
         # ---------------------------------------------------------
         # PLOT 1: MASS BREAKDOWN
         # ---------------------------------------------------------
@@ -432,6 +584,16 @@ def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_
         plt.plot(T, results["MON25 Tank Mass"], marker="o", label="MON25 Tank")
         plt.plot(T, results["HE Tank Mass"], marker="o", label="Helium COPV")
 
+        plt.plot(T, results["MMH Diaphragm Mass"], marker="p", label="MMH Diaphragm")
+        plt.plot(T, results["MON25 Diaphragm Mass"], marker="p", label="MON25 Diaphragm")
+
+        plt.plot(T, results["MMH Evaporated Mass"], marker="h", label="Maximum Evaporated MMH")
+        plt.plot(T, results["MON25 Evaporated Mass"], marker="h", label="Maximum Evaporated MON25")
+
+        plt.plot(T, results["Attitude Control System Mass"], marker="v", label="Attitude Control Componenets")
+
+        plt.plot(T, results["MMH Mass"], marker="s", label="Total MMH")
+        plt.plot(T, results["MON25 Mass"], marker="s", label="Total MON25")
         plt.plot(T, results["He Total Mass"], marker="s", label="Total Helium")
         plt.plot(T, results["Total Mass"], marker="D", linewidth=2.5, label="Total System Mass")
 
@@ -582,15 +744,19 @@ if __name__ == "__main__":
 
     t1 = UnitValue.create_unit("C", -40.0).to("K") #as per NASA report on MON25 and MMH, at -40 NTO start crystlizing out.
     t2 = UnitValue.create_unit("C", 60.0).to("K")
-    step = UnitValue.create_unit("K", 5.0)                                   
+    step = UnitValue.create_unit("K", 5.0)   
+
+    system_type =  "CG"  #"BI"                              
 
     MMH_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
     MON25_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
 
-    temperature_sweep(t1, t2, step, MMH_p, MON25_p, True) # true to make plots
+    result = temperature_sweep(t1, t2, step, MMH_p, MON25_p, system_type, True) # true to make plots
 
-    calculate_system_characterisitcs(t2, MMH_p, MON25_p, True)
+    # find max of total weight and find it's associated T then print below
+    T_ind = np.argmax(result["Total Mass"])
 
+    calculate_system_characterisitcs(UnitValue.create_unit("C", result["Temperature"][T_ind]), MMH_p, MON25_p, system_type, True)
     
 
                 
