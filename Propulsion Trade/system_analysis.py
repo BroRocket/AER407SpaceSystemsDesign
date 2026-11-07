@@ -66,13 +66,13 @@ DIAPHRAGM_THICKNESS = UnitValue.create_unit("mm", 1.8).convert_base_metric()
 FILL_FACTOR = 0.95
 
 '''Feed System Charecteristics'''
-INJECTOR_PRESSURE_RATIO = 0.8 #estimate
+INJECTOR_PRESSURE_RATIO = 0.63 #estimate
 ENGINE_VALVE_PLOSS = UnitValue.create_unit("bar", 1.1).convert_base_metric() # From manfacturer data at expected mass flow
 VENTURI_PRESSURE_RATIO = 0.6 #to ensure cavitation
-FUEL_SYSTEM_COMPONENT_IDIAMETER1 = UnitValue.create_unit("inch", 0.391).convert_base_metric()
+FUEL_SYSTEM_COMPONENT_IDIAMETER1 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 FUEL_SYSTEM_COMPONENT_IDIAMETER2 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
-FUEL_SYSTEM_PIPE_LENGHTS1 = UnitValue.create_unit("m", 1.5)
-FUEL_SYSTEM_PIPE_LENGHTS2 = UnitValue.create_unit("m", 0.75)
+FUEL_SYSTEM_PIPE_LENGHTS1 = UnitValue.create_unit("m", 0.484) # should be all same pipe diameter isntead of split so split length
+FUEL_SYSTEM_PIPE_LENGHTS2 = UnitValue.create_unit("m", 0.484)
 PIPE_ROUGHNESS = UnitValue.create_unit("m", 0.015/1000)
 MAIN_FUEL_VALVE_IDIAMTER = UnitValue.create_unit("mm", 12.9)
 MAIN_FUEL_VALVE_CV = 7.5
@@ -95,9 +95,10 @@ HE_PIPE_IDIAMETER1 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 HE_PIPE_LENGHTS2 = UnitValue.create_unit("m", 0.5) # represents parts of lines into one tanks and it's vent channels
 HE_PIPE_IDIAMETER2 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 
-R_HELIUM = UnitValue.create_unit("J/kgK", 2077.1) #296.8 for N2
+R_HELIUM = UnitValue.create_unit("J/kgK", 2077.1)#) #296.8 for N2
 
 '''MOMENTUM DUMPIN REQUIREMENTS'''
+NUMBER_OF_THRUSTERS = 12
 MAX_NUMBER_OF_DUMPS = 160
 ANGULAR_MOMENTUM_PER_DUMP = UnitValue.create_unit("kgm^2/s", 17.7)
 TOTAL_REQUIRED_ANGULAR_MOMENTUM = MAX_NUMBER_OF_DUMPS * ANGULAR_MOMENTUM_PER_DUMP
@@ -112,9 +113,8 @@ MAX_LAUNCH_G = 11 #From SpaceX user guide
 def cold_gas_attitude_control_system() -> tuple[UnitValue, UnitValue]: 
     THRUSTER_THRUST = UnitValue.create_unit("N", 3.6) # Newtons
     ISP = UnitValue.create_unit("s", 140) # seconds
-    NUMBER_OF_THRUSTERS = 6
     THRUSTER_MASS = UnitValue.create_unit("kg", 0.023)
-    REACTION_ARM = UnitValue.create_unit("m", 1)
+    REACTION_ARM = UnitValue.create_unit("m", 1.55)
     VALVE_MASS = UnitValue.create_unit("kg", 0.635)
     PRESSURE_REGULATOR_MASS = UnitValue.create_unit("kg", 1.2)
 
@@ -132,10 +132,9 @@ def cold_gas_attitude_control_system() -> tuple[UnitValue, UnitValue]:
 def bipropelant_attitude_control_system() -> tuple[UnitValue, UnitValue, UnitValue]: 
     THRUSTER_THRUST = UnitValue.create_unit("N", 10)
     ISP = UnitValue.create_unit("s", 292)
-    NUMBER_OF_THRUSTERS = 6
     THRUSTER_MASS = UnitValue.create_unit("kg", 0.350)
     OF_RATIO = 1.65
-    REACTION_ARM = UnitValue.create_unit("m", 1)
+    REACTION_ARM = UnitValue.create_unit("m", 1.55)
     VALVE_MASS = UnitValue.create_unit("kg", 0.545)
 
     thruster_mass_flow = THRUSTER_THRUST / (ISP * G)
@@ -145,7 +144,7 @@ def bipropelant_attitude_control_system() -> tuple[UnitValue, UnitValue, UnitVal
 
     # Get proppelant and thruster mass
     thruster_mass_flow = THRUSTER_THRUST / (ISP * G)
-    MMH_mass_flow = thruster_mass_flow / (1 + O_F_RATIO)
+    MMH_mass_flow = thruster_mass_flow / (1 + OF_RATIO)
     MMH_mass = MMH_mass_flow * total_required_burn_time
     MON25_mass_flow = thruster_mass_flow - MMH_mass_flow
     MON25_mass = MON25_mass_flow * total_required_burn_time
@@ -156,7 +155,8 @@ def bipropelant_attitude_control_system() -> tuple[UnitValue, UnitValue, UnitVal
 
 def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pressure_guess: UnitValue, MON25_tank_pressure_guess: UnitValue, AC_system_type: str, verbose: bool = False):
     '''Main fucniton to do system sizing calcs'''
-
+    attitude_control_propellant_mass = UnitValue.create_unit("kg", 0)
+    attitude_control_system_mass = UnitValue.create_unit("kg", 0)
     MMH_prev_pressure = UnitValue.create_unit("Pa", 0)
     MMH_new_pressure = MMH_tank_pressure_guess 
     MON25_prev_pressure = UnitValue.create_unit("Pa", 0)
@@ -375,6 +375,7 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
         print(f"Attitude Control Proppelant Mass: {attitude_control_propellant_mass}")
         print("="*20)
         print(f"Total System Mass: {total_propelant_mass + MMH_tank_mass + MON25_tank_mass + MMH_diaphragm_mass + MON25_diaphragm_mass + HE_copv_mass + HE_total_mass + attitude_control_system_mass}")
+        print(f"L/min He: {((HE_massflow_MMH_tank + HE_massflow_MON25_tank) / ((COPV_MAX_PRESSURE / (UnitValue.create_unit('J/kgK', 2077.1) * system_temperature)))).to('SLPM', temperature=system_temperature, pressure=COPV_MAX_PRESSURE)}")
 
     return {"MMH TANK": {
             "Operating Ullage Pressure": MMH_tank_outlet_pressure,
@@ -429,7 +430,9 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
             "He_mass_for_MON25_tank": HE_mass_MON25_tank,
             "He_mass_in_lines": HE_mass_in_lines
             },
-            "ATTITUDE CONTROL MASS": attitude_control_system_mass
+            "ATTITUDE CONTROL MASS": attitude_control_system_mass,
+            "ATTITUDE CONTROL PROPELLANT MASS": attitude_control_propellant_mass, 
+            "TOTAL_SYSTEM_MASS": total_propelant_mass + MMH_tank_mass + MON25_tank_mass + MMH_diaphragm_mass + MON25_diaphragm_mass + HE_copv_mass + HE_total_mass + attitude_control_system_mass
         }
 
 
@@ -734,30 +737,98 @@ def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_
 
 if __name__ == "__main__":
 
-    MMH_boiling = UnitValue.create_unit("R", MMH.prop.Tnbp).convert_base_metric()
-    MMH_freezing = UnitValue.create_unit("R", MMH.prop.Tfreeze).convert_base_metric()
-    MON25_boiling = UnitValue.create_unit("R", MON25.prop.Tnbp).convert_base_metric()
-    MON25_freezing = UnitValue.create_unit("R", MON25.prop.Tfreeze).convert_base_metric()
+    # MMH_boiling = UnitValue.create_unit("R", MMH.prop.Tnbp).convert_base_metric()
+    # MMH_freezing = UnitValue.create_unit("R", MMH.prop.Tfreeze).convert_base_metric()
+    # MON25_boiling = UnitValue.create_unit("R", MON25.prop.Tnbp).convert_base_metric()
+    # MON25_freezing = UnitValue.create_unit("R", MON25.prop.Tfreeze).convert_base_metric()
 
-    print(f'boil: {MMH_boiling.to("C")}, freeze: {MMH_freezing.to("C")}')
-    print(f'boil: {MON25_boiling.to("C")}, freeze: {MON25_freezing.to("C")}')
+    # print(f'boil: {MMH_boiling.to("C")}, freeze: {MMH_freezing.to("C")}')
+    # print(f'boil: {MON25_boiling.to("C")}, freeze: {MON25_freezing.to("C")}')
 
-    t1 = UnitValue.create_unit("C", -40.0).to("K") #as per NASA report on MON25 and MMH, at -40 NTO start crystlizing out.
-    t2 = UnitValue.create_unit("C", 60.0).to("K")
-    step = UnitValue.create_unit("K", 5.0)   
+    # t1 = UnitValue.create_unit("C", -40.0).to("K") #as per NASA report on MON25 and MMH, at -40 NTO start crystlizing out.
+    # t2 = UnitValue.create_unit("C", 60.0).to("K")
+    # step = UnitValue.create_unit("K", 5.0)   
 
-    system_type =  "CG"  #"BI"                              
+    # system_type =  "CG" #"CG"  #"BI"                              
 
+    # MMH_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
+    # MON25_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
+
+    # result = temperature_sweep(t1, t2, step, MMH_p, MON25_p, system_type, False) # true to make plots
+
+    # # find max of total weight and find it's associated T then print below
+    # T_ind = np.argmax(result["Total Mass"])
+
+    # calculate_system_characterisitcs(UnitValue.create_unit("C", result["Temperature"][T_ind]), MMH_p, MON25_p, system_type, True)
+    
     MMH_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
     MON25_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
+    t2 = UnitValue.create_unit("C", 60.0).to("K")
 
-    result = temperature_sweep(t1, t2, step, MMH_p, MON25_p, system_type, True) # true to make plots
+    dumps = np.linspace(100, 1000, 100)
 
-    # find max of total weight and find it's associated T then print below
-    T_ind = np.argmax(result["Total Mass"])
+    bi_masses = []
+    bi_prop = []
+    bi_sys_mass = []
+    system_type =  "BI"
 
-    calculate_system_characterisitcs(UnitValue.create_unit("C", result["Temperature"][T_ind]), MMH_p, MON25_p, system_type, True)
+    for dump in dumps:
+        MAX_NUMBER_OF_DUMPS = dump
+        result = calculate_system_characterisitcs(t2, MMH_p, MON25_p, system_type, False)
+        bi_masses.append(result["TOTAL_SYSTEM_MASS"])
+        bi_prop.append(result["ATTITUDE CONTROL PROPELLANT MASS"])
+        bi_sys_mass.append(result["ATTITUDE CONTROL MASS"])
+
+    cg_masses = []
+    cg_prop = []
+    cg_sys_mass = []
+    system_type =  "CG"
+
+    for dump in dumps:
+        MAX_NUMBER_OF_DUMPS = dump
+        result = calculate_system_characterisitcs(t2, MMH_p, MON25_p, system_type, False)
+        cg_masses.append(result["TOTAL_SYSTEM_MASS"])
+        cg_prop.append(result["ATTITUDE CONTROL PROPELLANT MASS"])
+        cg_sys_mass.append(result["ATTITUDE CONTROL MASS"])
+
+
+    # Plot mass comparison
+    plt.figure(figsize=(10, 6))
+
+    plt.plot(dumps, bi_masses, label="Bi-Propellant RCS System", linewidth=2)
+    plt.plot(dumps, cg_masses, label="Cold Gas RCS System", linewidth=2)
+
+    plt.xlabel("Number of Dumps")
+    plt.ylabel("Total Propellant Subsystem Mass [kg]")
+    plt.title("Total Propellant Subsystem Mass Comparison for RCS System Architecture")
+
+    plt.legend()
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.tight_layout()
+
+    plt.show()
+
+    plt.figure(figsize=(10, 6))
     
+    plt.plot(dumps, bi_prop, label="Bi-Propellant RCS Propellant", linewidth=2)
+    plt.plot(dumps, cg_prop, label="Cold Gas RCS Propellant", linewidth=2)
+    plt.plot(dumps, bi_sys_mass, label="Bi-Propellant RCS Components", linewidth=2)
+    plt.plot(dumps, cg_sys_mass, label="Cold Gas RCS Components", linewidth=2)
+
+    plt.xlabel("Number of Dumps")
+    plt.ylabel("Total Propellant Subsystem Mass [kg]")
+    plt.title("Total Propellant Subsystem Mass Comparison for RCS System Architecture")
+
+    plt.legend()
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.tight_layout()
+
+    plt.show()
+    
+
+    
+    
+
 
                 
 
