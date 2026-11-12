@@ -30,7 +30,7 @@ orbits = Ephemeris()
 RESULTS_CSV = os.path.join("Jupiter Gravity Assist Data", "jupiter_assist_results.csv")
 LEG1_CSV = os.path.join("Jupiter Gravity Assist Data", "leg1_earth_jupiter.csv")   # only used for older results CSVs
 LEG2_CSV = os.path.join("Jupiter Gravity Assist Data", "leg2_jupiter_comet.csv")   # only used for older results CSVs
-CASE_INDEX = 344 #611
+CASE_INDEX = 0 #344 what alll previous design was based off of
 DAYS_AFTER_RENDEZVOUS = 365   # keep simulating this long after the rendezvous
 STANDOFF = 50e3 # m
 
@@ -183,7 +183,7 @@ print(f"Jupiter periapsis before the burn: {periapsis['distance_m']/1e3 - 71492:
 # Where to make the correction burn: "periapsis", or a number of days after the
 # flyby (the old behaviour was 10). Try both: which is cheaper depends on how much of
 # the burn is along the flight direction (periapsis helps) or sideways (it doesn't).
-CORRECTION_BURN_AT = 1 #"periapsis"
+CORRECTION_BURN_AT = 1 #1 #"periapsis"
  
 # 3) Leg 1: launch -> correction burn, with your Spacecraft class.
 t_final = (arrival_date-departurte_date).total_seconds()

@@ -16,7 +16,7 @@ MU_SUN = 1.32712440041279419e20       # m^3/s^2
 
 YEAR = 365.25 * 86400.0               # seconds
 
-START_DATE = datetime(2033, 2, 25)
+START_DATE = datetime(2028, 3, 21)
 
 
 # ============================================================
@@ -322,7 +322,7 @@ if __name__ == "__main__":
     orbits = Ephemeris()
 
     departurte_date = START_DATE
-    arrival_date = datetime(2035, 6, 10)
+    arrival_date = datetime(2030, 3, 21)
 
     # comet = CelestialBody(
     #     "3I/ATLAS",
@@ -343,12 +343,11 @@ if __name__ == "__main__":
     # --------------------------------------------------------
 
     altitudes_km = np.array([
+        3,
         5,
         10,
         50,
         100,
-        1000,
-        10000
     ])
 
     # --------------------------------------------------------
@@ -362,13 +361,10 @@ if __name__ == "__main__":
     # --------------------------------------------------------
 
     correction_fractions = [
-        0.25,
-        0.5,
         1.0,
         2.0,
         5.0,
         10.0,
-        25.0
     ]
 
     # Dictionary to store results

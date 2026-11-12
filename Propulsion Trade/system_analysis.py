@@ -20,7 +20,7 @@ R_MON25 =  UnitValue.create_unit("J/kgK", RU * 1000 / MON25.prop.MolWt)
 
 '''MISSION CONSTANTS'''
 
-REQUIRED_DELTA_V = UnitValue.create_unit("m/s", 1134) # in m/s
+REQUIRED_DELTA_V = UnitValue.create_unit("m/s", 1017) # in m/s 1134
 INITIAL_MASS = UnitValue.create_unit("kg", 1650)
 
 '''ENGINE SPECIFICATIONS'''
@@ -66,13 +66,13 @@ DIAPHRAGM_THICKNESS = UnitValue.create_unit("mm", 1.8).convert_base_metric()
 FILL_FACTOR = 0.95
 
 '''Feed System Charecteristics'''
-INJECTOR_PRESSURE_RATIO = 0.63 #estimate
+INJECTOR_PRESSURE_RATIO = 0.63 #based on datasheet
 ENGINE_VALVE_PLOSS = UnitValue.create_unit("bar", 1.1).convert_base_metric() # From manfacturer data at expected mass flow
-VENTURI_PRESSURE_RATIO = 0.6 #to ensure cavitation
+VENTURI_PRESSURE_RATIO = 0.6 #to ensure cavitation, is an estimate
 FUEL_SYSTEM_COMPONENT_IDIAMETER1 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 FUEL_SYSTEM_COMPONENT_IDIAMETER2 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
-FUEL_SYSTEM_PIPE_LENGHTS1 = UnitValue.create_unit("m", 0.484) # should be all same pipe diameter isntead of split so split length
-FUEL_SYSTEM_PIPE_LENGHTS2 = UnitValue.create_unit("m", 0.484)
+FUEL_SYSTEM_PIPE_LENGHTS1 = UnitValue.create_unit("m", 0.5) # should be all same pipe diameter isntead of split so split length
+FUEL_SYSTEM_PIPE_LENGHTS2 = UnitValue.create_unit("m", 0.5)
 PIPE_ROUGHNESS = UnitValue.create_unit("m", 0.015/1000)
 MAIN_FUEL_VALVE_IDIAMTER = UnitValue.create_unit("mm", 12.9)
 MAIN_FUEL_VALVE_CV = 7.5
@@ -85,9 +85,9 @@ HE_TANK_ULTIMATE_TENSILE_STRENGTH = UnitValue.create_unit("MPa", 4900).convert_b
 
 '''HELIUM TANK CHARACTERSITICS'''
 #assume want COPV pressure > 1000psi and start at 2000psi
-COPV_MAX_PRESSURE = UnitValue.create_unit("psig", 3000).convert_base_metric()
+COPV_MAX_PRESSURE = UnitValue.create_unit("psig", 5000).convert_base_metric()
 COPV_MIN_PRESSURE = UnitValue.create_unit("psig", 1000).convert_base_metric()
-COPV_METAL_LINER_THICKNESS = UnitValue.create_unit("mm", 1.5).convert_base_metric()
+COPV_METAL_LINER_THICKNESS = UnitValue.create_unit("mm", 1).convert_base_metric() # thin liner not load bearing only to stop permeability
 COPV_METAL_LINER_DENSITY = UnitValue.create_unit("kg/m^3", 2.84 * 1000) # Aluminum Liner Aluminium 2219-T87 
 
 HE_PIPE_LENGHTS1 = UnitValue.create_unit("m", 2) # represents parts of lines up to both regulators
@@ -95,16 +95,16 @@ HE_PIPE_IDIAMETER1 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 HE_PIPE_LENGHTS2 = UnitValue.create_unit("m", 0.5) # represents parts of lines into one tanks and it's vent channels
 HE_PIPE_IDIAMETER2 = UnitValue.create_unit("inch", 0.172).convert_base_metric()
 
-R_HELIUM = UnitValue.create_unit("J/kgK", 2077.1)#) #296.8 for N2
+R_HELIUM = UnitValue.create_unit("J/kgK", 2077.1) #296.8 for N2
 
 '''MOMENTUM DUMPIN REQUIREMENTS'''
 NUMBER_OF_THRUSTERS = 12
 MAX_NUMBER_OF_DUMPS = 160
-ANGULAR_MOMENTUM_PER_DUMP = UnitValue.create_unit("kgm^2/s", 17.7)
+ANGULAR_MOMENTUM_PER_DUMP = UnitValue.create_unit("kgm^2/s", 18) # round of estimate from AOC
 TOTAL_REQUIRED_ANGULAR_MOMENTUM = MAX_NUMBER_OF_DUMPS * ANGULAR_MOMENTUM_PER_DUMP
 
 '''SAFETY FACTORS AND MARGINS'''
-STRUCTURAL_SAFETY_FACTOR = 2
+STRUCTURAL_SAFETY_FACTOR = 1.5
 COPV_STRUCTURAL_SAFETY_FACTOR = 2.5
 TANK_PRESSURE_MARGIN = 1.5
 MAX_LAUNCH_G = 11 #From SpaceX user guide
@@ -114,7 +114,7 @@ def cold_gas_attitude_control_system() -> tuple[UnitValue, UnitValue]:
     THRUSTER_THRUST = UnitValue.create_unit("N", 3.6) # Newtons
     ISP = UnitValue.create_unit("s", 140) # seconds
     THRUSTER_MASS = UnitValue.create_unit("kg", 0.023)
-    REACTION_ARM = UnitValue.create_unit("m", 1.55)
+    REACTION_ARM = UnitValue.create_unit("m", 0.8905)
     VALVE_MASS = UnitValue.create_unit("kg", 0.635)
     PRESSURE_REGULATOR_MASS = UnitValue.create_unit("kg", 1.2)
 
@@ -134,7 +134,7 @@ def bipropelant_attitude_control_system() -> tuple[UnitValue, UnitValue, UnitVal
     ISP = UnitValue.create_unit("s", 292)
     THRUSTER_MASS = UnitValue.create_unit("kg", 0.350)
     OF_RATIO = 1.65
-    REACTION_ARM = UnitValue.create_unit("m", 1.55)
+    REACTION_ARM = UnitValue.create_unit("m", 0.8905)
     VALVE_MASS = UnitValue.create_unit("kg", 0.545)
 
     thruster_mass_flow = THRUSTER_THRUST / (ISP * G)
@@ -247,9 +247,9 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
 
     #spherical tank stress /sigma = p*r / 2t
     MMH_sph_tank_inner_rad = ((MMH_tank_inner_volume_w_fill_factor * (3/4)) / math.pi) ** (1/3)
-    MMH_tank_inner_rad_rounded = UnitValue.create_unit("m", math.ceil(MMH_sph_tank_inner_rad * 10 ** 3) / 10 **3) #to closest mm, ceiling round to ensure sufficient volume
+    MMH_tank_inner_rad_rounded = UnitValue.create_unit("m", math.ceil(MMH_sph_tank_inner_rad * 10 ** 4) / 10 **4) #to closest 0.1 mm, ceiling round to ensure sufficient volume
     MON25_sph_tank_inner_rad = ((MON25_tank_inner_volume_w_fill_factor * (3/4)) / math.pi) ** (1/3)
-    MON25_tank_inner_rad_rounded = UnitValue.create_unit("m", math.ceil(MON25_sph_tank_inner_rad * 10 ** 3) / 10 **3)
+    MON25_tank_inner_rad_rounded = UnitValue.create_unit("m", math.ceil(MON25_sph_tank_inner_rad * 10 ** 4) / 10 **4) 
 
     #Compute a max tank pressure during launch with margin
     MMH_bottom_of_tank_pressure_at_launch = MMH_density * MAX_LAUNCH_G * G * 2 * MMH_tank_inner_rad_rounded # conservative higher raidus even thoguh it shouldnt be this full
@@ -260,9 +260,9 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
 
     # Compute required thickenss
     MMH_tank_thickness = (MMH_max_tank_pressure * MMH_tank_inner_rad_rounded) / (2 * (PROPELLANT_TANK_YIELD_STRENGTH / STRUCTURAL_SAFETY_FACTOR))
-    MMH_rounded_thickness = UnitValue.create_unit("m", math.ceil(MMH_tank_thickness * 10 **3) / 10 **3)
+    MMH_rounded_thickness = UnitValue.create_unit("m", math.ceil(MMH_tank_thickness * 10 ** 4) / 10 **4) 
     MON25_tank_thickness = (MON25_max_tank_pressure * MON25_tank_inner_rad_rounded) / (2 * (PROPELLANT_TANK_YIELD_STRENGTH / STRUCTURAL_SAFETY_FACTOR))
-    MON25_rounded_thickness = UnitValue.create_unit("m", math.ceil(MON25_tank_thickness * 10 **3) / 10 **3)
+    MON25_rounded_thickness = UnitValue.create_unit("m", math.ceil(MON25_tank_thickness * 10 ** 4) / 10 **4) 
 
     #Compute weight of tank
     MON25_tank_material_volume = 4/3 * math.pi * ((MON25_rounded_thickness + MON25_tank_inner_rad_rounded) ** 3 - MON25_tank_inner_rad_rounded ** 3)
@@ -308,14 +308,14 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
         '''Maybe use non ideal gas law here fro Helium'''
         HE_copv_inner_volume = ((HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines + HE_mass_attitude_control) * R_HELIUM * system_temperature) / (COPV_MAX_PRESSURE - COPV_MIN_PRESSURE)
         HE_copv_inner_radius = ((HE_copv_inner_volume * (3/4)) / math.pi) ** (1/3)
-        HE_copv_inner_radius_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_inner_radius * 10 ** 3) / 10 **3)
+        HE_copv_inner_radius_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_inner_radius * 10 ** 4) / 10 **4) 
 
     else:
         #Detemrine HE requried volume
         '''Maybe use non ideal gas law here fro Helium'''
         HE_copv_inner_volume = ((HE_mass_MMH_tank + HE_mass_MON25_tank + HE_mass_in_lines) * R_HELIUM * system_temperature) / (COPV_MAX_PRESSURE - COPV_MIN_PRESSURE)
         HE_copv_inner_radius = ((HE_copv_inner_volume * (3/4)) / math.pi) ** (1/3)
-        HE_copv_inner_radius_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_inner_radius * 10 ** 3) / 10 **3)
+        HE_copv_inner_radius_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_inner_radius * 10 ** 4) / 10 **4) 
 
     #Find He COPV wall thickness
     HE_copv_inner_volume_rounded = 4/3 * math.pi * (HE_copv_inner_radius_rounded) ** 3
@@ -323,7 +323,7 @@ def calculate_system_characterisitcs(system_temperature: UnitValue, MMH_tank_pre
     HE_copv_liner_material_volume = 4/3 * math.pi * (HE_copv_inner_radius_rounded + COPV_METAL_LINER_THICKNESS) ** 3 - HE_copv_inner_volume_rounded
     HE_liner_mass = HE_copv_liner_material_volume * COPV_METAL_LINER_DENSITY
     HE_copv_thickness = (COPV_MAX_PRESSURE * TANK_PRESSURE_MARGIN * HE_copv_inner_raidus_with_liner) / (2 * (HE_TANK_ULTIMATE_TENSILE_STRENGTH / COPV_STRUCTURAL_SAFETY_FACTOR))
-    HE_copv_thickness_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_thickness * 10 ** 3) / 10 ** 3)
+    HE_copv_thickness_rounded = UnitValue.create_unit("m", math.ceil(HE_copv_thickness * 10 ** 4) / 10 **4) 
     HE_copv_outer_volume_rounded = 4/3 * math.pi * (HE_copv_thickness_rounded + HE_copv_inner_raidus_with_liner) ** 3
     
     HE_mass_unusable = (COPV_MIN_PRESSURE * HE_copv_inner_volume_rounded) / (R_HELIUM * system_temperature)
@@ -737,93 +737,93 @@ def temperature_sweep(t1: UnitValue, t2: UnitValue, t_step: UnitValue, MMH_tank_
 
 if __name__ == "__main__":
 
-    # MMH_boiling = UnitValue.create_unit("R", MMH.prop.Tnbp).convert_base_metric()
-    # MMH_freezing = UnitValue.create_unit("R", MMH.prop.Tfreeze).convert_base_metric()
-    # MON25_boiling = UnitValue.create_unit("R", MON25.prop.Tnbp).convert_base_metric()
-    # MON25_freezing = UnitValue.create_unit("R", MON25.prop.Tfreeze).convert_base_metric()
+    MMH_boiling = UnitValue.create_unit("R", MMH.prop.Tnbp).convert_base_metric()
+    MMH_freezing = UnitValue.create_unit("R", MMH.prop.Tfreeze).convert_base_metric()
+    MON25_boiling = UnitValue.create_unit("R", MON25.prop.Tnbp).convert_base_metric()
+    MON25_freezing = UnitValue.create_unit("R", MON25.prop.Tfreeze).convert_base_metric()
 
-    # print(f'boil: {MMH_boiling.to("C")}, freeze: {MMH_freezing.to("C")}')
-    # print(f'boil: {MON25_boiling.to("C")}, freeze: {MON25_freezing.to("C")}')
+    print(f'boil: {MMH_boiling.to("C")}, freeze: {MMH_freezing.to("C")}')
+    print(f'boil: {MON25_boiling.to("C")}, freeze: {MON25_freezing.to("C")}')
 
-    # t1 = UnitValue.create_unit("C", -40.0).to("K") #as per NASA report on MON25 and MMH, at -40 NTO start crystlizing out.
-    # t2 = UnitValue.create_unit("C", 60.0).to("K")
-    # step = UnitValue.create_unit("K", 5.0)   
+    t1 = UnitValue.create_unit("C", -40.0).to("K") #as per NASA report on MON25 and MMH, at -40 NTO start crystlizing out.
+    t2 = UnitValue.create_unit("C", 60.0).to("K")
+    step = UnitValue.create_unit("K", 5.0)   
 
-    # system_type =  "CG" #"CG"  #"BI"                              
+    system_type =  "BI" #"CG"  #"BI"                              
 
-    # MMH_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
-    # MON25_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
-
-    # result = temperature_sweep(t1, t2, step, MMH_p, MON25_p, system_type, False) # true to make plots
-
-    # # find max of total weight and find it's associated T then print below
-    # T_ind = np.argmax(result["Total Mass"])
-
-    # calculate_system_characterisitcs(UnitValue.create_unit("C", result["Temperature"][T_ind]), MMH_p, MON25_p, system_type, True)
-    
     MMH_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
     MON25_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
-    t2 = UnitValue.create_unit("C", 60.0).to("K")
 
-    dumps = np.linspace(100, 1000, 100)
+    result = temperature_sweep(t1, t2, step, MMH_p, MON25_p, system_type, False) # true to make plots
 
-    bi_masses = []
-    bi_prop = []
-    bi_sys_mass = []
-    system_type =  "BI"
+    # find max of total weight and find it's associated T then print below
+    T_ind = np.argmax(result["Total Mass"])
 
-    for dump in dumps:
-        MAX_NUMBER_OF_DUMPS = dump
-        result = calculate_system_characterisitcs(t2, MMH_p, MON25_p, system_type, False)
-        bi_masses.append(result["TOTAL_SYSTEM_MASS"])
-        bi_prop.append(result["ATTITUDE CONTROL PROPELLANT MASS"])
-        bi_sys_mass.append(result["ATTITUDE CONTROL MASS"])
-
-    cg_masses = []
-    cg_prop = []
-    cg_sys_mass = []
-    system_type =  "CG"
-
-    for dump in dumps:
-        MAX_NUMBER_OF_DUMPS = dump
-        result = calculate_system_characterisitcs(t2, MMH_p, MON25_p, system_type, False)
-        cg_masses.append(result["TOTAL_SYSTEM_MASS"])
-        cg_prop.append(result["ATTITUDE CONTROL PROPELLANT MASS"])
-        cg_sys_mass.append(result["ATTITUDE CONTROL MASS"])
-
-
-    # Plot mass comparison
-    plt.figure(figsize=(10, 6))
-
-    plt.plot(dumps, bi_masses, label="Bi-Propellant RCS System", linewidth=2)
-    plt.plot(dumps, cg_masses, label="Cold Gas RCS System", linewidth=2)
-
-    plt.xlabel("Number of Dumps")
-    plt.ylabel("Total Propellant Subsystem Mass [kg]")
-    plt.title("Total Propellant Subsystem Mass Comparison for RCS System Architecture")
-
-    plt.legend()
-    plt.grid(True, linestyle="--", alpha=0.6)
-    plt.tight_layout()
-
-    plt.show()
-
-    plt.figure(figsize=(10, 6))
+    calculate_system_characterisitcs(UnitValue.create_unit("C", result["Temperature"][T_ind]), MMH_p, MON25_p, system_type, True)
     
-    plt.plot(dumps, bi_prop, label="Bi-Propellant RCS Propellant", linewidth=2)
-    plt.plot(dumps, cg_prop, label="Cold Gas RCS Propellant", linewidth=2)
-    plt.plot(dumps, bi_sys_mass, label="Bi-Propellant RCS Components", linewidth=2)
-    plt.plot(dumps, cg_sys_mass, label="Cold Gas RCS Components", linewidth=2)
+    # MMH_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
+    # MON25_p = UnitValue.create_unit("MPa", 2.4).convert_base_metric()
+    # t2 = UnitValue.create_unit("C", 60.0).to("K")
 
-    plt.xlabel("Number of Dumps")
-    plt.ylabel("Total Propellant Subsystem Mass [kg]")
-    plt.title("Total Propellant Subsystem Mass Comparison for RCS System Architecture")
+    # dumps = np.linspace(100, 1000, 100)
 
-    plt.legend()
-    plt.grid(True, linestyle="--", alpha=0.6)
-    plt.tight_layout()
+    # bi_masses = []
+    # bi_prop = []
+    # bi_sys_mass = []
+    # system_type =  "BI"
 
-    plt.show()
+    # for dump in dumps:
+    #     MAX_NUMBER_OF_DUMPS = dump
+    #     result = calculate_system_characterisitcs(t2, MMH_p, MON25_p, system_type, False)
+    #     bi_masses.append(result["TOTAL_SYSTEM_MASS"])
+    #     bi_prop.append(result["ATTITUDE CONTROL PROPELLANT MASS"])
+    #     bi_sys_mass.append(result["ATTITUDE CONTROL MASS"])
+
+    # cg_masses = []
+    # cg_prop = []
+    # cg_sys_mass = []
+    # system_type =  "CG"
+
+    # for dump in dumps:
+    #     MAX_NUMBER_OF_DUMPS = dump
+    #     result = calculate_system_characterisitcs(t2, MMH_p, MON25_p, system_type, False)
+    #     cg_masses.append(result["TOTAL_SYSTEM_MASS"])
+    #     cg_prop.append(result["ATTITUDE CONTROL PROPELLANT MASS"])
+    #     cg_sys_mass.append(result["ATTITUDE CONTROL MASS"])
+
+
+    # # Plot mass comparison
+    # plt.figure(figsize=(10, 6))
+
+    # plt.plot(dumps, bi_masses, label="Bi-Propellant RCS System", linewidth=2)
+    # plt.plot(dumps, cg_masses, label="Cold Gas RCS System", linewidth=2)
+
+    # plt.xlabel("Number of Dumps")
+    # plt.ylabel("Total Propellant Subsystem Mass [kg]")
+    # plt.title("Total Propellant Subsystem Mass Comparison for RCS System Architecture")
+
+    # plt.legend()
+    # plt.grid(True, linestyle="--", alpha=0.6)
+    # plt.tight_layout()
+
+    # plt.show()
+
+    # plt.figure(figsize=(10, 6))
+    
+    # plt.plot(dumps, bi_prop, label="Bi-Propellant RCS Propellant", linewidth=2)
+    # plt.plot(dumps, cg_prop, label="Cold Gas RCS Propellant", linewidth=2)
+    # plt.plot(dumps, bi_sys_mass, label="Bi-Propellant RCS Components", linewidth=2)
+    # plt.plot(dumps, cg_sys_mass, label="Cold Gas RCS Components", linewidth=2)
+
+    # plt.xlabel("Number of Dumps")
+    # plt.ylabel("Total Propellant Subsystem Mass [kg]")
+    # plt.title("Total Propellant Subsystem Mass Comparison for RCS System Architecture")
+
+    # plt.legend()
+    # plt.grid(True, linestyle="--", alpha=0.6)
+    # plt.tight_layout()
+
+    # plt.show()
     
 
     

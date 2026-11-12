@@ -85,7 +85,9 @@ print(60*"=")
 print("Min Arrival under 1.05km/s delta-v (Full print out):")
 print(closest_comet_distance_filtered)
 print(f'Wanted Index {filtered_df["comet_distance_au"].idxmin()}')
+print(f'Wanted Index Min DV {filtered_df["onboard_dv"].idxmin()}')
 filtered_df.to_csv("Filetered_jupiter_flyby.csv")
+
 
 #make plot here
 
